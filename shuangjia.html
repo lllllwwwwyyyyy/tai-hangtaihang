@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉素材图库 - 海量高清图片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "微软雅黑", "PingFang SC", "Helvetica Neue", sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        /* 登录遮罩 */
+        .login-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 45px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 360px;
+        }
+
+        .login-box h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 26px;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .login-box input {
+            width: 100%;
+            height: 45px;
+            padding: 0 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .login-box input:focus {
+            border-color: #0066ff;
+        }
+
+        .login-box button {
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* ========== 主页面样式 ========== */
+        .main-content {
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 - 半透明效果 */
+        .header {
+            width: 100%;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo span {
+            color: #ff6b35;
+        }
+
+        .search-box {
+            width: 450px;
+            height: 45px;
+            display: flex;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        .search-input {
+            flex: 1;
+            height: 100%;
+            padding: 0 20px;
+            font-size: 15px;
+            border: none;
+            outline: none;
+        }
+
+        .search-btn {
+            width: 100px;
+            height: 100%;
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #e55a2b;
+        }
+
+        /* 全屏英雄区 */
+        .hero-section {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('img/shijurku.bmp') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 20px 80px;
+            position: relative;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 1;
+        }
+
+        .hero-section > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .sub-title {
+            font-size: 22px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero-search {
+            margin-top: 20px;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-search-box {
+            display: flex;
+            width: 580px;
+            max-width: 90%;
+            margin: 0 auto;
+            height: 58px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            border-radius: 50px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .hero-search-box input {
+            flex: 1;
+            height: 100%;
+            padding: 0 25px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+        }
+
+        .hero-search-box button {
+            width: 130px;
+            height: 100%;
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hero-search-box button:hover {
+            background: #e55a2b;
+        }
+
+        .hot-tags {
+            margin-top: 35px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hot-tag {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hot-tag:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .recommend-section {
+            padding: 60px 5%;
+            background: #f8f9fc;
+            text-align: center;
+        }
+
+        .recommend-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .recommend-desc {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .recommend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .rec-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .rec-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+        }
+
+        .rec-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #e9ecef;
+        }
+
+        .rec-card .rec-name {
+            padding: 16px 12px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e2a3e;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .footer {
+            background: #1a1a2e;
+            color: #aaa;
+            text-align: center;
+            padding: 30px;
+            font-size: 14px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 20px;
+            }
+            .search-box {
+                width: 220px;
+            }
+            .search-btn {
+                width: 65px;
+                font-size: 12px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .main-title {
+                font-size: 32px;
+            }
+            .sub-title {
+                font-size: 16px;
+            }
+            .hero-search-box {
+                height: 50px;
+            }
+            .hero-search-box button {
+                width: 100px;
+                font-size: 14px;
+            }
+            .recommend-title {
+                font-size: 26px;
+            }
+            .recommend-grid {
+                gap: 18px;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码登录弹窗 -->
+    <div class="login-mask" id="loginBox">
+        <div class="login-box">
+            <h3>📸 视觉素材图库</h3>
+            <p>请输入密码进入海量高清图库</p>
+            <input type="password" id="pwdInput" placeholder="请输入登录密码">
+            <button onclick="checkPwd()">确认登录</button>
+        </div>
+    </div>
+
+    <!-- 图库主页内容 -->
+    <div class="main-content hide" id="mainContent">
+        <div class="header">
+            <div class="logo"><span>视觉素材图库</span></div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="topSearchInput" placeholder="输入风景、动漫、建筑等关键词..." onkeypress="if(event.key==='Enter') searchImage()">
+                <button class="search-btn" onclick="searchImage()">搜索</button>
+            </div>
+        </div>
+
+        <div class="hero-section">
+            <h1 class="main-title">📷 视觉素材图库</h1>
+            <div class="sub-title">探索无限创意 · 发现视觉之美</div>
+            <div class="hero-search">
+                <div class="hero-search-box">
+                    <input type="text" id="heroSearchInput" placeholder="输入关键词，快速检索图片..." onkeypress="if(event.key==='Enter') heroSearch()">
+                    <button onclick="heroSearch()">立即搜索</button>
+                </div>
+            </div>
+            <div class="hot-tags" id="hotTagsArea"></div>
+        </div>
+
+        <div class="recommend-section">
+            <h2 class="recommend-title">🔥 热门推荐</h2>
+            <p class="recommend-desc">精选高清视觉素材，点击卡片即可查看</p>
+            <div class="recommend-grid" id="recommendGrid"></div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 视觉素材图库 | 海量高清图片 · 灵感从这里开始</p>
+        </div>
+    </div>
+
+    <script>
+        const truePwd = "123456";
+
+        // 图片数据库
+        const imageDatabase = [
+            { id: 1, name: "太行山云海", tag: ["风景", "太行", "山景"], url: "image/太行山云海.jpg", fallback: "image/太行山云海.jpg" },
+            { id: 2, name: "娘子关古城", tag: ["娘子关", "古城", "建筑"], url: "./img/娘子关.jpg", fallback: "https://picsum.photos/id/429/400/300" },
+            { id: 3, name: "固关镇古道", tag: ["固关镇", "古道", "风景"], url: "./img/固关镇.jpg", fallback: "https://picsum.photos/id/95/400/300" },
+            { id: 4, name: "地都村秋色", tag: ["地都村", "古村", "风景"], url: "./img/地都村.jpg", fallback: "https://picsum.photos/id/169/400/300" },
+            { id: 5, name: "长城日出", tag: ["长城", "风景", "日出"], url: "./img/长城日出.jpg", fallback: "https://picsum.photos/id/22/400/300" },
+            { id: 6, name: "江南水乡", tag: ["水乡", "建筑", "风景"], url: "./img/江南水乡.jpg", fallback: "https://picsum.photos/id/162/400/300" },
+            { id: 7, name: "城市夜景", tag: ["城市", "夜景", "建筑"], url: "./img/城市夜景.jpg", fallback: "https://picsum.photos/id/3/400/300" },
+            { id: 8, name: "樱花大道", tag: ["樱花", "风景", "春天"], url: "./img/樱花大道.jpg", fallback: "https://picsum.photos/id/96/400/300" }
+        ];
+
+        function checkPwd() {
+            let inputPwd = document.getElementById('pwdInput').value;
+            if (inputPwd === truePwd) {
+                document.getElementById('loginBox').classList.add('hide');
+                document.getElementById('mainContent').classList.remove('hide');
+                loadRecommendImages();
+                initHotTags();
+            } else {
+                alert('密码错误，请重新输入');
+                document.getElementById('pwdInput').value = '';
+            }
+        }
+
+        document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') checkPwd();
+        });
+
+        function loadImageWithFallback(imgElement, originalUrl, fallbackUrl) {
+            imgElement.src = originalUrl;
+            imgElement.onerror = function() {
+                this.onerror = null;
+                this.src = fallbackUrl;
+            };
+        }
+
+        function loadRecommendImages() {
+            const grid = document.getElementById('recommendGrid');
+            const recImages = imageDatabase.slice(0, 8);
+            let html = '';
+            recImages.forEach(img => {
+                html += `
+                    <div class="rec-card" data-imgname="${img.name}" onclick="viewImage('${img.name}')">
+                        <img class="rec-img" alt="${img.name}" data-original="${img.url}" data-fallback="${img.fallback}">
+                        <div class="rec-name">📷 ${img.name}</div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+            
+            document.querySelectorAll('.rec-img').forEach(img => {
+                const originalUrl = img.getAttribute('data-original');
+                const fallbackUrl = img.getAttribute('data-fallback');
+                loadImageWithFallback(img, originalUrl, fallbackUrl);
+            });
+        }
+
+        function initHotTags() {
+            const hotContainer = document.getElementById('hotTagsArea');
+            const hotTags = ['风景', '建筑', '古城', '山景', '长城', '樱花'];
+            let html = '';
+            hotTags.forEach(tag => {
+                html += `<div class="hot-tag" onclick="quickSearch('${tag}')">🏷️ ${tag}</div>`;
+            });
+            hotContainer.innerHTML = html;
+        }
+
+        // 关键修改：跳转到 sousuo.html
+        function searchWithKeyword(keyword) {
+            if (!keyword || keyword.trim() === "") {
+                alert("请输入搜索关键词");
+                return;
+            }
+            window.location.href = `sousuo.html?key=${encodeURIComponent(keyword.trim())}`;
+        }
+
+        function searchImage() {
+            const keyword = document.getElementById('topSearchInput').value;
+            searchWithKeyword(keyword);
+        }
+
+        function heroSearch() {
+            const keyword = document.getElementById('heroSearchInput').value;
+            searchWithKeyword(keyword);
+        }
+
+        function quickSearch(keyword) {
+            searchWithKeyword(keyword);
+        }
+
+        function viewImage(name) {
+            window.location.href = `sousuo.html?key=${encodeURIComponent(name)}`;
+        }
+    </script>
+</body>
+</html>

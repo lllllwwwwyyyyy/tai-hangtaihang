@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>裸眼3D景点展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .three-d-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .three-d-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(46, 125, 50, 0.95);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            z-index: 200;
+            white-space: nowrap;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            animation: fadeInOut 1s ease-in-out forwards;
+        }
+
+        .toast-warning {
+            background: rgba(229, 57, 53, 0.95);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+                visibility: hidden;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .back-btn {
+                padding: 8px 18px;
+                font-size: 14px;
+                top: 15px;
+                left: 15px;
+            }
+            .toast-message {
+                padding: 12px 24px;
+                font-size: 16px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="three-d-container">
+        <img class="three-d-img" id="threeDImage" src="" alt="裸眼3D景点图">
+        <a href="daka.html" class="back-btn">← 返回</a>
+    </div>
+
+    <script>
+        function getUrlParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const imgName = getUrlParam('img');
+        const spotName = getUrlParam('name');
+        const spotId = getUrlParam('id');
+        const alreadyChecked = getUrlParam('checked'); // 获取是否已经打卡
+
+        console.log("3D页面 - 景点:", spotName, "ID:", spotId, "已打卡状态:", alreadyChecked);
+
+        if (imgName) {
+            document.getElementById('threeDImage').src = `./3d-images/${imgName}`;
+        } else {
+            document.getElementById('threeDImage').src = './3d-images/default.jpg';
+        }
+
+        function showToast(message, isWarning = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            if (isWarning) {
+                toast.classList.add('toast-warning');
+            }
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                if (toast && toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 1000);
+        }
+
+        // 页面加载时显示提示（不重复打卡，只做展示）
+        window.addEventListener('load', () => {
+            if (alreadyChecked === '1') {
+                // 已经打卡过，只显示欢迎信息
+                showToast(`🎉 欢迎再次来到 ${spotName ? '『' + spotName + '』' : '景点'}`, false);
+            } else {
+                // 未打卡的情况实际上已经在点击时由地图页处理了打卡
+                // 这里只显示成功提示
+                showToast(`✅ ${spotName ? '『' + spotName + '』' : '景点'} 打卡成功！`, false);
+            }
+        });
+
+        const imgElement = document.getElementById('threeDImage');
+        imgElement.onerror = function() {
+            this.src = './3d-images/default.jpg';
+        };
+    </script>
+</body>
+</html>

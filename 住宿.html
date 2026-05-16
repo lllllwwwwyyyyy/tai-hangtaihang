@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>民宿预订页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding-bottom: 80px;
+        }
+        .location-bar-top{
+            display:flex;
+            align-items:center;
+            padding:10px 16px;
+            background:#fff;
+            border-bottom:1px solid #eee;
+        }
+        .location-icon{
+            font-size:18px;
+            color:#ff4444;
+            margin-right:6px;
+        }
+        .top-nav{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:12px 16px;
+            background:#fff;
+        }
+        .back-btn{
+            padding:6px 12px;
+            background:#eee;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+        .record-btn{
+            padding:6px 12px;
+            background:#ff7a45;
+            color:#fff;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+        .search-header {
+            background-color: #fff;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .location-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .location-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .date-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .date-item {
+            font-size: 15px;
+            color: #555;
+        }
+        .search-btn {
+            width: 100%;
+            background: #ff7a45;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: #fff;
+            margin: 10px 0;
+            position: relative;
+            z-index: 5;
+        }
+        .filter-item {
+            flex: 1;
+            padding: 8px 6px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            position: relative;
+        }
+        .filter-panel {
+            display: none;
+            position: absolute;
+            top: 46px;
+            left: 16px;
+            right: 16px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 12px;
+            z-index: 20;
+        }
+        .filter-panel.show {
+            display: block;
+        }
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .filter-option {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .filter-option.selected {
+            background: #ff7a45;
+            color: #fff;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-reset {
+            background: #eee;
+            color: #666;
+        }
+        .btn-confirm {
+            background: #ff7a45;
+            color: #fff;
+        }
+        .homestay-list {
+            padding: 0 16px;
+        }
+        .homestay-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .card-content {
+            padding: 12px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .top-tag{
+            display:inline-block;
+            font-size:12px;
+            padding:2px 6px;
+            border-radius:4px;
+            margin-right:6px;
+            color:#fff;
+        }
+        .top1{background:#e53935;}
+        .top2{background:#fb8c00;}
+        .top3{background:#fdd835;color:#333;}
+        .card-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom:6px;
+        }
+        .rating {
+            color: #ff7a45;
+            font-size: 14px;
+        }
+        .price {
+            font-size: 18px;
+            color: #ff7a45;
+            font-weight: bold;
+        }
+        .recommend-index{
+            font-size:13px;
+            color:#229678;
+            font-weight:bold;
+        }
+        .detail-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 200;
+            overflow-y: auto;
+        }
+        .popup-content {
+            background: #fff;
+            margin: 20px auto;
+            max-width: 90%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .popup-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .popup-body {
+            padding: 16px;
+        }
+        .popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .popup-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .popup-price {
+            font-size: 20px;
+            color: #ff7a45;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 16px 0 8px;
+        }
+        .facility-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .facility-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .review-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .review-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .review-text {
+            font-size: 13px;
+            color: #555;
+        }
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .calendar-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 150;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .calendar-day {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            margin: 2px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .calendar-day.selected {
+            background: #ff7a45;
+            color: white;
+        }
+        .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .book-btn {
+            width: 100%;
+            background: #ff7a45;
+            color: #fff;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+        .booking-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+        .booking-box {
+            background: #fff;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .booking-box h3 {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .booking-item {
+            margin-bottom: 12px;
+        }
+        .booking-item label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .booking-item input,.booking-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size:14px;
+        }
+        .booking-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .booking-btn {
+            flex:1;
+            padding:10px;
+            border:none;
+            border-radius:6px;
+            font-size:15px;
+            cursor:pointer;
+        }
+        .btn-cancel {
+            background:#eee;
+        }
+        .btn-submit {
+            background:#ff7a45;
+            color:#fff;
+        }
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #229678;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 400;
+            display: none;
+        }
+        .record-page{
+            display:none;
+            padding:16px;
+        }
+        .record-item{
+            background:#fff;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="location-bar-top">
+        <span class="location-icon">📍</span>
+        <span id="currentLoc">河北省石家庄市井陉县</span>
+    </div>
+
+    <div class="top-nav">
+        <button class="back-btn" onclick="backAction()">返回</button>
+        <span>民宿预订平台</span>
+        <button class="record-btn" onclick="openRecord()">预订记录</button>
+    </div>
+
+    <div id="mainPage">
+        <div class="search-header">
+            <div class="location-bar">
+                <div class="location-info">井陉古道</div>
+                <div style="font-size:14px;color:#666;">当前游玩地</div>
+            </div>
+            <div class="date-bar" id="dateBar">
+                <div class="date-item" id="checkInDate">入住：选择日期</div>
+                <div class="date-item" id="checkOutDate">离店：选择日期</div>
+            </div>
+            <button class="search-btn" id="searchBtn">一键查找民宿</button>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-item" id="starFilter">星级 ▾</div>
+            <div class="filter-item" id="distanceFilter">距离 ▾</div>
+            <div class="filter-item" id="priceFilter">价格 ▾</div>
+            <div class="filter-item" id="guestFilter">人数 ▾</div>
+
+            <div class="filter-panel" id="starPanel">
+                <div class="filter-options" id="starOptions">
+                    <div class="filter-option" data-val="4">4星及以上</div>
+                    <div class="filter-option" data-val="4.5">4.5星及以上</div>
+                    <div class="filter-option" data-val="4.8">4.8星及以上</div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn btn-reset" onclick="resetFilter('star')">重置</button>
+                    <button class="filter-btn btn-confirm" onclick="confirmFilter()">确定</button>
+                </div>
+            </div>
+            <div class="filter-panel" id="distancePanel">
+                <div class="filter-options" id="distanceOptions">
+                    <div class="filter-option" data-val="1">1km内</div>
+                    <div class="filter-option" data-val="3">3km内</div>
+                    <div class="filter-option" data-val="5">5km内</div>
+                    <div class="filter-option" data-val="10">10km内</div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn btn-reset" onclick="resetFilter('distance')">重置</button>
+                    <button class="filter-btn btn-confirm" onclick="confirmFilter()">确定</button>
+                </div>
+            </div>
+            <div class="filter-panel" id="pricePanel">
+                <div class="filter-options" id="priceOptions">
+                    <div class="filter-option" data-val="200">200以下</div>
+                    <div class="filter-option" data-val="300">300以下</div>
+                    <div class="filter-option" data-val="400">400以下</div>
+                    <div class="filter-option" data-val="500">500以下</div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn btn-reset" onclick="resetFilter('price')">重置</button>
+                    <button class="filter-btn btn-confirm" onclick="confirmFilter()">确定</button>
+                </div>
+            </div>
+            <div class="filter-panel" id="guestPanel">
+                <div class="filter-options" id="guestOptions">
+                    <div class="filter-option" data-val="1">1人</div>
+                    <div class="filter-option" data-val="2">2人</div>
+                    <div class="filter-option" data-val="3">3人</div>
+                    <div class="filter-option" data-val="4">4人+</div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn btn-reset" onclick="resetFilter('guest')">重置</button>
+                    <button class="filter-btn btn-confirm" onclick="confirmFilter()">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="homestay-list" id="homestayList"></div>
+    </div>
+
+    <div class="record-page" id="recordPage">
+        <h3 style="text-align:center;margin:20px 0;">我的全部预订记录</h3>
+        <div id="recordBox"></div>
+    </div>
+
+    <div class="calendar-popup" id="calendarPopup">
+        <div class="calendar-content">
+            <div class="calendar-header">
+                <span id="calendarMonth">2026年5月</span>
+                <div>
+                    <button id="prevMonth">&lt;</button>
+                    <button id="nextMonth">&gt;</button>
+                </div>
+            </div>
+            <div id="calendarDays"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:16px;">
+                <button onclick="closeCalendar()">取消</button>
+                <button onclick="confirmDate()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-popup" id="detailPopup">
+        <div class="close-btn" onclick="closeDetail()">×</div>
+        <div class="popup-content" id="popupContent"></div>
+    </div>
+
+    <div class="booking-popup" id="bookingPopup">
+        <div class="booking-box">
+            <h3>预订民宿</h3>
+            <div class="booking-item">
+                <label>姓名</label>
+                <input type="text" id="bookName" placeholder="请输入姓名">
+            </div>
+            <div class="booking-item">
+                <label>手机号</label>
+                <input type="text" id="bookPhone" placeholder="请输入手机号码">
+            </div>
+            <div class="booking-item">
+                <label>身份证号</label>
+                <input type="text" id="bookIdcard" placeholder="请输入18位身份证号码">
+            </div>
+            <div class="booking-item">
+                <label>预订房间数量</label>
+                <select id="roomNum">
+                    <option value="1">1间</option>
+                    <option value="2">2间</option>
+                    <option value="3">3间</option>
+                    <option value="4">4间</option>
+                    <option value="5">5间</option>
+                </select>
+            </div>
+            <div class="booking-item">
+                <label>入住日期</label>
+                <input type="text" id="bookIn" readonly placeholder="选择日期">
+            </div>
+            <div class="booking-item">
+                <label>离店日期</label>
+                <input type="text" id="bookOut" readonly placeholder="选择日期">
+            </div>
+            <div class="booking-buttons">
+                <button class="booking-btn btn-cancel" onclick="closeBooking()">取消</button>
+                <button class="booking-btn btn-submit" onclick="submitBooking()">提交预订</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-toast" id="successToast"></div>
+
+    <script>
+        const homestays = [
+            {id:1,name:"古道人家民宿",img:"https://images.pexels.com/photos/164630/pexels-photo-164630.jpeg",tags:["近古道","农家菜"],rating:4.8,price:268,originalPrice:328,address:"井陉天长镇宋古城村",distance:0.5,maxGuests:4,facilities:["整套房屋","独立卫浴","免费停车","WiFi","空调"],reviews:[{name:"游客A",rating:5,text:"位置绝佳，古色古香"},{name:"游客B",rating:4,text:"干净舒适出行方便"}]},
+            {id:2,name:"娘子关客栈",img:"https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg",tags:["近景区","亲子房"],rating:4.7,price:328,originalPrice:398,address:"井陉娘子关镇",distance:1.2,maxGuests:3,facilities:["观景露台","亲子设施","热水"],reviews:[{name:"游客C",rating:5,text:"离景区超近"},{name:"游客D",rating:4,text:"服务贴心周到"}]},
+            {id:3,name:"小龙窝古居",img:"https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg",tags:["石头房","原生态"],rating:4.9,price:298,originalPrice:368,address:"天长镇小龙窝村",distance:3,maxGuests:2,facilities:["石头院落","篝火体验"],reviews:[{name:"游客E",rating:5,text:"民风淳朴体验感拉满"}]},
+            {id:4,name:"苍岩山山居",img:"https://images.pexels.com/photos/281665/pexels-photo-281665.jpeg",tags:["山景房","禅意风"],rating:4.6,price:358,originalPrice:428,address:"苍岩山镇",distance:2.5,maxGuests:2,facilities:["山景视野","安静宜居"],reviews:[{name:"游客G",rating:5,text:"空气清新十分治愈"}]},
+            {id:5,name:"微水河畔民宿",img:"https://images.pexels.com/photos/103124/pexels-photo-103124.jpeg",tags:["交通便利","河景房"],rating:4.5,price:198,originalPrice:258,address:"微水镇",distance:0.3,maxGuests:2,facilities:["出行方便","性价比高"],reviews:[{name:"游客I",rating:4,text:"逛街吃饭都很近"}]},
+            {id:6,name:"核桃园驿站",img:"https://images.pexels.com/photos/2187445/pexels-photo-2187445.jpeg",tags:["古驿站","特色主题"],rating:4.7,price:238,originalPrice:298,address:"天长镇核桃园村",distance:4,maxGuests:3,facilities:["文创体验","采摘体验"],reviews:[{name:"游客K",rating:5,text:"特色十足值得入住"}]},
+            {id:7,name:"固关长城客栈",img:"https://images.pexels.com/photos/141573/pexels-photo-141573.jpeg",tags:["近长城","历史风情"],rating:4.8,price:318,originalPrice:388,address:"南峪镇固关村",distance:2,maxGuests:4,facilities:["长城观景","文化讲解"],reviews:[{name:"游客M",rating:5,text:"边关风情浓厚"}]},
+            {id:8,name:"秀林田园民宿",img:"https://images.pexels.com/photos/1758144/pexels-photo-1758144.jpeg",tags:["田园风光","亲子"],rating:4.6,price:218,originalPrice:278,address:"秀林镇",distance:3.5,maxGuests:4,facilities:["田园采摘","休闲度假"],reviews:[{name:"游客O",rating:5,text:"带孩子游玩首选"}]},
+            {id:9,name:"于家石头村民宿",img:"https://images.pexels.com/photos/164211/pexels-photo-164211.jpeg",tags:["古村民宿","民俗体验"],rating:4.9,price:288,originalPrice:358,address:"于家乡于家村",distance:5,maxGuests:2,facilities:["民俗活动","静谧清幽"],reviews:[{name:"游客Q",rating:5,text:"远离城市很安逸"}]},
+            {id:10,name:"威州河畔民宿",img:"https://images.pexels.com/photos/137044/pexels-photo-137044.jpeg",tags:["河畔风光","农家体验"],rating:4.5,price:208,originalPrice:268,address:"威州镇",distance:4,maxGuests:3,facilities:["河畔垂钓","农家生活"],reviews:[{name:"游客S",rating:4,text:"性价比很不错"}]}
+        ];
+
+        let selectedStar = null;
+        let selectedDistance = null;
+        let selectedPrice = null;
+        let selectedGuests = null;
+        let checkInDate = null,checkOutDate = null,currentMonth = new Date();
+        let currentHotel = null;
+        let orderList = JSON.parse(localStorage.getItem("hotelOrder")) || [];
+
+        function getRecommendScore(index){
+            if(index === 0) return 100;
+            if(index === 1 || index === 2){
+                return 90 + Math.floor(Math.random()*10);
+            }
+            return 75 + Math.floor(Math.random()*15);
+        }
+
+        function filterHomestays(){
+            let arr = [...homestays];
+            if(selectedStar) arr = arr.filter(x=>x.rating>=selectedStar);
+            if(selectedDistance) arr = arr.filter(x=>x.distance<=selectedDistance);
+            if(selectedPrice) arr = arr.filter(x=>x.price<=selectedPrice);
+            if(selectedGuests){
+                arr = selectedGuests===4 ? arr.filter(x=>x.maxGuests>=4) : arr.filter(x=>x.maxGuests>=selectedGuests);
+            }
+            let scoredArr = arr.map((item, idx) => ({
+                ...item,
+                score: getRecommendScore(idx)
+            }));
+            scoredArr.sort((a,b) => b.score - a.score);
+            renderList(scoredArr);
+        }
+
+        function renderList(list){
+            const box = document.getElementById("homestayList");
+            if(list.length===0){
+                box.innerHTML = `<div style="text-align:center;padding:40px;color:#999;">暂无匹配民宿</div>`;
+                return;
+            }
+            box.innerHTML = list.map((item,index)=>{
+                let score = item.score;
+                let topStr = '';
+                if(index === 0) topStr = '<span class="top-tag top1">TOP1优选</span>';
+                if(index === 1) topStr = '<span class="top-tag top2">TOP2精选</span>';
+                if(index === 2) topStr = '<span class="top-tag top3">TOP3推荐</span>';
+                return `
+                <div class="homestay-card" onclick="showDetail(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+                    <img class="card-img" src="${item.img}">
+                    <div class="card-content">
+                        <div class="card-title">${topStr}${item.name}</div>
+                        <div class="card-tags">${item.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+                        <div class="card-info">
+                            <div class="rating">${"★".repeat(Math.floor(item.rating))} ${item.rating} | 可住${item.maxGuests}人</div>
+                            <div class="price">¥${item.price}/晚</div>
+                        </div>
+                        <div class="recommend-index">智能推荐指数：${score}分</div>
+                    </div>
+                </div>
+                `
+            }).join('');
+        }
+
+        function showDetail(data){
+            currentHotel = data;
+            let pop = document.getElementById("detailPopup");
+            let con = document.getElementById("popupContent");
+            con.innerHTML = `
+                <img class="popup-img" src="${data.img}">
+                <div class="popup-body">
+                    <div class="popup-title">${data.name}</div>
+                    <div class="popup-tags">${data.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+                    <div class="popup-price">¥${data.price} <span style="text-decoration:line-through;color:#999;font-size:14px">原价${data.originalPrice}</span></div>
+                    <div class="section-title">位置信息</div>
+                    <div style="font-size:14px;color:#555">📍${data.address}<br>距离当前位置：${data.distance}km<br>容纳人数：最多${data.maxGuests}人</div>
+                    <div class="section-title">房屋设施</div>
+                    <div class="facility-list">${data.facilities.map(f=>`<div class="facility-item">✅${f}</div>`).join('')}</div>
+                    <div class="section-title">用户评价</div>
+                    ${data.reviews.map(r=>`
+                    <div class="review-item">
+                        <div class="review-header"><span class="review-name">${r.name}</span><span style="color:#ff7a45">${"★".repeat(r.rating)}</span></div>
+                        <div class="review-text">${r.text}</div>
+                    </div>
+                    `).join('')}
+                    <button class="book-btn" onclick="openBooking()">立即预订</button>
+                </div>
+            `;
+            pop.style.display="block";
+        }
+        function closeDetail(){document.getElementById("detailPopup").style.display="none";}
+
+        function openBooking(){
+            closeDetail();
+            document.getElementById("bookingPopup").style.display="flex";
+            if(checkInDate) document.getElementById("bookIn").value = `${checkInDate.getMonth()+1}月${checkInDate.getDate()}日`;
+            if(checkOutDate) document.getElementById("bookOut").value = `${checkOutDate.getMonth()+1}月${checkOutDate.getDate()}日`;
+        }
+        function closeBooking(){document.getElementById("bookingPopup").style.display="none";}
+
+        function submitBooking(){
+            let name = document.getElementById("bookName").value.trim();
+            let phone = document.getElementById("bookPhone").value.trim();
+            let idcard = document.getElementById("bookIdcard").value.trim();
+            let room = document.getElementById("roomNum").value;
+            let bin = document.getElementById("bookIn").value;
+            let bout = document.getElementById("bookOut").value;
+
+            if(!name || !phone || !idcard || !bin || !bout){
+                alert("请填写完整预订信息");
+                return;
+            }
+            if(!/^\d{11}$/.test(phone)){
+                alert("请输入正确11位手机号码");
+                return;
+            }
+            if(!/^\d{17}[\dX]$/.test(idcard)){
+                alert("请输入正确18位身份证号码");
+                return;
+            }
+
+            let orderNo = "JD" + Date.now().toString().slice(-8);
+            let orderInfo = {
+                orderId:orderNo,
+                userName:name,
+                userPhone:phone,
+                userIdCard:idcard,
+                roomCount:room,
+                hotelName:currentHotel.name,
+                hotelAddr:currentHotel.address,
+                inDate:bin,
+                outDate:bout,
+                price:currentHotel.price
+            };
+            orderList.push(orderInfo);
+            localStorage.setItem("hotelOrder",JSON.stringify(orderList));
+
+            let toast = document.getElementById("successToast");
+            toast.innerHTML = `预订成功！订单号：${orderNo}`;
+            toast.style.display = "block";
+            closeBooking();
+            setTimeout(()=>toast.style.display="none",3000);
+        }
+
+        function openRecord(){
+            document.getElementById("mainPage").style.display="none";
+            document.getElementById("recordPage").style.display="block";
+            let box = document.getElementById("recordBox");
+            if(orderList.length === 0){
+                box.innerHTML = "<div style='text-align:center;padding:30px;color:#888;'>暂无预订订单</div>";
+                return;
+            }
+            let html = "";
+            orderList.forEach(item=>{
+                html += `
+                <div class="record-item">
+                    <p><strong>订单编号：</strong>${item.orderId}</p>
+                    <p><strong>预订人姓名：</strong>${item.userName}</p>
+                    <p><strong>联系手机号：</strong>${item.userPhone}</p>
+                    <p><strong>预订人身份证号：</strong>${item.userIdCard}</p>
+                    <p><strong>预订房间数量：</strong>${item.roomCount}间</p>
+                    <p><strong>入住民宿：</strong>${item.hotelName}</p>
+                    <p><strong>民宿详细地址：</strong>${item.hotelAddr}</p>
+                    <p><strong>入住时间：</strong>${item.inDate}</p>
+                    <p><strong>离店时间：</strong>${item.outDate}</p>
+                    <p><strong>每晚价格：</strong>¥${item.price}</p>
+                </div>
+                `;
+            });
+            box.innerHTML = html;
+        }
+
+        // 最终正确返回逻辑
+        function backAction(){
+            if(document.getElementById("recordPage").style.display === "block"){
+                document.getElementById("recordPage").style.display = "none";
+                document.getElementById("mainPage").style.display = "block";
+            }else{
+                window.location.href = "智能导览.html";
+            }
+        }
+
+        document.getElementById("bookPhone").addEventListener("input",function(){
+            this.value = this.value.replace(/\D/g,'');
+        });
+        document.getElementById("bookIdcard").addEventListener("input",function(){
+            this.value = this.value.replace(/[^\dX]/g,'');
+        });
+
+        function showFilterPanel(id){
+            document.querySelectorAll(".filter-panel").forEach(p=>p.classList.remove("show"));
+            document.getElementById(id).classList.add("show");
+        }
+        document.getElementById("starFilter").onclick=()=>showFilterPanel("starPanel");
+        document.getElementById("distanceFilter").onclick=()=>showFilterPanel("distancePanel");
+        document.getElementById("priceFilter").onclick=()=>showFilterPanel("pricePanel");
+        document.getElementById("guestFilter").onclick=()=>showFilterPanel("guestPanel");
+
+        ["star","distance","price","guest"].forEach(type=>{
+            document.querySelectorAll(`#${type}Options .filter-option`).forEach(opt=>{
+                opt.onclick=function(){
+                    document.querySelectorAll(`#${type}Options .filter-option`).forEach(o=>o.classList.remove("selected"));
+                    this.classList.add("selected");
+                    if(type==="star") selectedStar = parseFloat(this.dataset.val);
+                    if(type==="distance") selectedDistance = parseInt(this.dataset.val);
+                    if(type==="price") selectedPrice = parseInt(this.dataset.val);
+                    if(type==="guest") selectedGuests = parseInt(this.dataset.val);
+                }
+            })
+        })
+
+        function resetFilter(type){
+            if(type==="star"){selectedStar=null;document.querySelectorAll("#starOptions .filter-option").forEach(o=>o.classList.remove("selected"));}
+            if(type==="distance"){selectedDistance=null;document.querySelectorAll("#distanceOptions .filter-option").forEach(o=>o.classList.remove("selected"));}
+            if(type==="price"){selectedPrice=null;document.querySelectorAll("#priceOptions .filter-option").forEach(o=>o.classList.remove("selected"));}
+            if(type==="guest"){selectedGuests=null;document.querySelectorAll("#guestOptions .filter-option").forEach(o=>o.classList.remove("selected"));}
+        }
+        function confirmFilter(){
+            document.querySelectorAll(".filter-panel").forEach(p=>p.classList.remove("show"));
+            filterHomestays();
+        }
+
+        function openCalendar(){document.getElementById("calendarPopup").style.display="flex";renderCalendar();}
+        function closeCalendar(){document.getElementById("calendarPopup").style.display="none";}
+        function renderCalendar(){
+            let y = currentMonth.getFullYear(),m=currentMonth.getMonth();
+            document.getElementById("calendarMonth").innerText=`${y}年${m+1}月`;
+            let first=new Date(y,m,1).getDay(),total=new Date(y,m+1,0).getDate(),html="";
+            for(let i=0;i<first;i++)html+='<div class="calendar-day"></div>';
+            for(let d=1;d<=total;d++){
+                let nowD=new Date(y,m,d);
+                let past = nowD < new Date(new Date().toDateString());
+                let inD = checkInDate&&nowD.toDateString()===checkInDate.toDateString();
+                let outD = checkOutDate&&nowD.toDateString()===checkOutDate.toDateString();
+                let bet = checkInDate&&checkOutDate&&nowD>checkInDate&&nowD<checkOutDate;
+                let cls="calendar-day";
+                if(past)cls+=" disabled";
+                if(inD||outD||bet)cls+=" selected";
+                html+=`<div class="${cls}" onclick="selDate(${nowD.getTime()},${past})">${d}</div>`;
+            }
+            document.getElementById("calendarDays").innerHTML=html;
+        }
+        function selDate(t,ispast){
+            if(ispast)return;
+            let d=new Date(t);
+            if(!checkInDate || (checkInDate&&checkOutDate)){checkInDate=d;checkOutDate=null;}
+            else{if(d>checkInDate)checkOutDate=d;else{checkInDate=d;checkOutDate=null;}}
+            renderCalendar();
+        }
+        function confirmDate(){
+            if(checkInDate)document.getElementById("checkInDate").innerText=`入住：${checkInDate.getMonth()+1}月${checkInDate.getDate()}日`;
+            if(checkOutDate)document.getElementById("checkOutDate").innerText=`离店：${checkOutDate.getMonth()+1}月${checkOutDate.getDate()}日`;
+            closeCalendar();
+        }
+        document.getElementById("dateBar").onclick=openCalendar;
+        document.getElementById("prevMonth").onclick=()=>{currentMonth.setMonth(currentMonth.getMonth()-1);renderCalendar();}
+        document.getElementById("nextMonth").onclick=()=>{currentMonth.setMonth(currentMonth.getMonth()+1);renderCalendar();}
+        document.getElementById("searchBtn").onclick=filterHomestays;
+
+        renderList(homestays);
+    </script>
+</body>
+</html>

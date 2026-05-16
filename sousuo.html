@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果 - 视觉素材图库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "微软雅黑", "PingFang SC", sans-serif;
+            background: #f5f7fa;
+        }
+
+        .header {
+            height: 65px;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #ff6b35;
+        }
+
+        .back-btn {
+            color: #fff;
+            background: #ff6b35;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-btn:hover {
+            background: #e55a2b;
+        }
+
+        .result-info {
+            padding: 20px 5%;
+            background: #fff;
+            margin: 20px 5%;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .keyword {
+            color: #ff6b35;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .count {
+            color: #666;
+        }
+
+        .results-container {
+            padding: 0 5% 50px 5%;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .image-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            background: #e9ecef;
+        }
+
+        .image-title {
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            border-top: 1px solid #eee;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            background: #fff;
+            border-radius: 16px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .no-results .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .suggestions {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .suggestion-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-tag:hover {
+            background: #ff6b35;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+            .image-card img {
+                height: 130px;
+            }
+            .image-title {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo"><span>视觉素材图库</span></div>
+        <button onclick="goBack()" class="back-btn">← 返回首页</button>
+    </div>
+
+    <div class="result-info">
+        <div>🔍 搜索关键词：<span class="keyword" id="keywordSpan"></span></div>
+        <div class="count" id="countSpan"></div>
+    </div>
+
+    <div class="results-container">
+        <div class="image-grid" id="imageGrid"></div>
+    </div>
+
+    <script>
+        // 图片数据库（与首页保持一致）
+        const imageDatabase = [
+            { id: 1, name: "太行山云海", tag: ["风景", "太行", "山景", "云海"], url: "./img/太行山云海.jpg", fallback: "https://picsum.photos/id/104/400/300" },
+            { id: 2, name: "娘子关古城", tag: ["娘子关", "古城", "建筑", "关隘"], url: "./img/娘子关.jpg", fallback: "https://picsum.photos/id/429/400/300" },
+            { id: 3, name: "固关镇古道", tag: ["固关镇", "古道", "风景", "太行"], url: "./img/固关镇.jpg", fallback: "https://picsum.photos/id/95/400/300" },
+            { id: 4, name: "地都村秋色", tag: ["地都村", "古村", "风景", "秋色"], url: "./img/地都村.jpg", fallback: "https://picsum.photos/id/169/400/300" },
+            { id: 5, name: "长城日出", tag: ["长城", "风景", "日出", "雄伟"], url: "./img/长城日出.jpg", fallback: "https://picsum.photos/id/22/400/300" },
+            { id: 6, name: "江南水乡", tag: ["水乡", "建筑", "风景", "江南"], url: "./img/江南水乡.jpg", fallback: "https://picsum.photos/id/162/400/300" },
+            { id: 7, name: "城市夜景", tag: ["城市", "夜景", "建筑", "霓虹"], url: "./img/城市夜景.jpg", fallback: "https://picsum.photos/id/3/400/300" },
+            { id: 8, name: "樱花大道", tag: ["樱花", "风景", "春天", "花海"], url: "./img/樱花大道.jpg", fallback: "https://picsum.photos/id/96/400/300" }
+        ];
+
+        function getUrlParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function searchImages(keyword) {
+            if (!keyword || keyword.trim() === "") {
+                return [];
+            }
+            const lowK = keyword.toLowerCase().trim();
+            return imageDatabase.filter(item => {
+                const nameMatch = item.name.toLowerCase().includes(lowK);
+                const tagMatch = item.tag.some(t => t.toLowerCase().includes(lowK));
+                return nameMatch || tagMatch;
+            });
+        }
+
+        function loadImageWithFallback(imgElement, originalUrl, fallbackUrl) {
+            imgElement.src = originalUrl;
+            imgElement.onerror = function() {
+                this.onerror = null;
+                this.src = fallbackUrl;
+            };
+        }
+
+        function renderResults(keyword, results) {
+            const keywordSpan = document.getElementById('keywordSpan');
+            const countSpan = document.getElementById('countSpan');
+            const imageGrid = document.getElementById('imageGrid');
+
+            keywordSpan.innerText = keyword;
+            countSpan.innerText = `找到 ${results.length} 张图片`;
+
+            if (results.length === 0) {
+                const suggestions = ['风景', '太行', '古城', '长城', '樱花', '水乡', '夜景'];
+                let suggestionsHtml = '';
+                suggestions.forEach(tag => {
+                    suggestionsHtml += `<span class="suggestion-tag" onclick="searchTag('${tag}')">${tag}</span>`;
+                });
+                
+                imageGrid.innerHTML = `
+                    <div class="no-results">
+                        <div class="icon">😔</div>
+                        <div>未找到与 "<strong>${keyword}</strong>" 相关的图片</div>
+                        <div class="suggestions">
+                            💡 试试搜索：<br>
+                            ${suggestionsHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                results.forEach(item => {
+                    html += `
+                        <div class="image-card">
+                            <img class="result-img" alt="${item.name}" data-original="${item.url}" data-fallback="${item.fallback}">
+                            <div class="image-title">📷 ${item.name}</div>
+                        </div>
+                    `;
+                });
+                imageGrid.innerHTML = html;
+                
+                document.querySelectorAll('.result-img').forEach(img => {
+                    const originalUrl = img.getAttribute('data-original');
+                    const fallbackUrl = img.getAttribute('data-fallback');
+                    loadImageWithFallback(img, originalUrl, fallbackUrl);
+                });
+            }
+        }
+
+        function searchTag(tag) {
+            window.location.href = `sousuo.html?key=${encodeURIComponent(tag)}`;
+        }
+
+        function goBack() {
+            window.location.href = 'shuangjia.html';
+        }
+
+        const keyword = getUrlParam('key');
+        if (keyword && keyword.trim() !== "") {
+            const results = searchImages(keyword);
+            renderResults(keyword, results);
+        } else {
+            renderResults("未输入关键词", []);
+        }
+    </script>
+</body>
+</html>

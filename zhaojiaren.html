@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭地图随机打卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #f0f0f0;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+
+        /* 地图容器 - 全屏自适应 */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: url('img/map.png') no-repeat center center;
+            background-size: cover;
+            background-position: center;
+            background-color: #e8e4d8;
+        }
+
+        /* 标记点通用样式 - 菱形 */
+        .marker {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transform: translate(-50%, -50%) rotate(45deg);
+            transition: all 0.3s ease;
+            z-index: 10;
+            animation: breathe 2s infinite ease-in-out;
+        }
+
+        /* 内部文字需要反向旋转保持正向 */
+        .marker span {
+            transform: rotate(-45deg);
+            display: block;
+        }
+
+        /* 呼吸动画 - 保持菱形效果 */
+        @keyframes breathe {
+            0% { 
+                transform: translate(-50%, -50%) rotate(45deg) scale(1); 
+            }
+            50% { 
+                transform: translate(-50%, -50%) rotate(45deg) scale(1.1); 
+            }
+            100% { 
+                transform: translate(-50%, -50%) rotate(45deg) scale(1); 
+            }
+        }
+
+        .marker:hover {
+            transform: translate(-50%, -50%) rotate(45deg) scale(1.2);
+            filter: brightness(1.1);
+            z-index: 20;
+        }
+
+        /* 蓝色标记 - 代表你 */
+        .marker-blue {
+            background: #165DFF;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.4);
+        }
+
+        /* 绿色标记 - 代表家人 */
+        .marker-green {
+            background: #36D399;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 12px rgba(54, 211, 153, 0.4);
+        }
+
+        /* 标记提示框 - 调整位置适配菱形 */
+        .marker-tooltip {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%) rotate(0deg);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-weight: normal;
+            z-index: 30;
+        }
+
+        .marker:hover .marker-tooltip {
+            opacity: 1;
+        }
+
+        /* 刷新按钮 */
+        .refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #165DFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #0D47A1;
+            transform: translateY(-2px);
+        }
+
+        /* 图例说明 */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            transform: rotate(45deg);
+        }
+
+        .dot-blue {
+            background: #165DFF;
+        }
+
+        .dot-green {
+            background: #36D399;
+        }
+
+        /* 返回箭头按钮样式 */
+        .back-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #165DFF;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            cursor: pointer;
+            border: none;
+            line-height: 1;
+        }
+
+        .back-arrow:hover {
+            background: #165DFF;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(22,93,255,0.3);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .marker {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .marker-tooltip {
+                font-size: 11px;
+                padding: 4px 8px;
+                bottom: 35px;
+            }
+            .legend {
+                padding: 10px 14px;
+            }
+            .legend-item {
+                font-size: 12px;
+            }
+            .refresh-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                top: 15px;
+                right: 15px;
+            }
+            .back-arrow {
+                width: 38px;
+                height: 38px;
+                font-size: 24px;
+                top: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container" id="map">
+        <!-- 标记点会通过JS动态生成 -->
+    </div>
+
+    <!-- 返回箭头：超链接，href地址请自行替换为实际路径 -->
+    <a href="智能导览.html" class="back-arrow" id="backArrow">←</a>
+
+    <!-- 刷新按钮（可选，保留供手动刷新） -->
+    <button class="refresh-btn" id="refreshBtn">🎲 随机刷新位置</button>
+
+    <!-- 图例 -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-dot dot-blue"></div>
+            <span>蓝色菱形：我</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot dot-green"></div>
+            <span>绿色菱形：爸爸</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot dot-green"></div>
+            <span>绿色菱形：妈妈</span>
+        </div>
+    </div>
+
+    <script>
+        // 1. 定义地图上所有景点的坐标（基于原图的百分比位置，自适应缩放）
+        const scenicSpots = [
+            { name: "娘子关", x: 0.16, y: 0.56 },
+            { name: "地都村", x: 0.25, y: 0.49 },
+            { name: "长生口村", x: 0.35, y: 0.47 },
+            { name: "核桃园村", x: 0.28, y: 0.61 },
+            { name: "小龙窝村", x: 0.37, y: 0.58 },
+            { name: "固关镇", x: 0.23, y: 0.72 },
+            { name: "乏驴岭", x: 0.35, y: 0.44 },
+            { name: "宋古城村", x: 0.43, y: 0.45 },
+            { name: "石桥头村", x: 0.46, y: 0.38 },
+            { name: "秀林镇", x: 0.52, y: 0.45 },
+            { name: "青石岭", x: 0.58, y: 0.21 },
+            { name: "微水镇", x: 0.62, y: 0.45 },
+            { name: "于家石头村", x: 0.67, y: 0.39 },
+            { name: "威州镇", x: 0.68, y: 0.17 },
+            { name: "上安镇", x: 0.74, y: 0.33 },
+            { name: "白王庄村", x: 0.77, y: 0.27 },
+            { name: "亮子岭", x: 0.84, y: 0.35 },
+            { name: "土门关", x: 0.94, y: 0.28 },
+            { name: "苍岩山镇", x: 0.63, y: 0.92 }
+        ];
+
+        // 2. 定义3个标记的身份信息
+        const markersConfig = [
+            { id: "me", name: "我", color: "blue" },
+            { id: "dad", name: "爸爸", color: "green" },
+            { id: "mom", name: "妈妈", color: "green" }
+        ];
+
+        // 3. 随机分配位置的函数
+        function randomizeMarkers() {
+            const mapContainer = document.getElementById('map');
+            // 清空之前的标记
+            mapContainer.innerHTML = '';
+
+            // 随机打乱景点数组
+            const shuffledSpots = [...scenicSpots].sort(() => Math.random() - 0.5);
+            
+            // 为3个标记分配前3个随机景点
+            const selectedSpots = shuffledSpots.slice(0, 3);
+
+            // 创建并添加标记（菱形）
+            markersConfig.forEach((marker, index) => {
+                const spot = selectedSpots[index];
+                const markerEl = document.createElement('div');
+                markerEl.className = `marker marker-${marker.color}`;
+                markerEl.style.left = `${spot.x * 100}%`;
+                markerEl.style.top = `${spot.y * 100}%`;
+                
+                // 菱形内部显示文字（需要span来反向旋转保持正向）
+                // 添加提示框
+                markerEl.innerHTML = `
+                    <span>${marker.name.charAt(0)}</span>
+                    <div class="marker-tooltip">
+                        ${marker.name} → ${spot.name}
+                    </div>
+                `;
+
+                mapContainer.appendChild(markerEl);
+            });
+        }
+
+        // 返回箭头链接配置：此处href请替换为实际需要跳转的地址（例如 index.html 或上一级页面）
+        // 为了方便修改，通过JS设置，也可直接在a标签上写href，这里提供灵活方式
+       
+        // 4. 页面每次加载/刷新时自动执行随机刷新（无需点击按钮）
+        window.addEventListener('load', randomizeMarkers);
+
+        // 5. 绑定刷新按钮点击事件（供手动刷新使用）
+        document.getElementById('refreshBtn').addEventListener('click', randomizeMarkers);
+    </script>
+</body>
+</html>

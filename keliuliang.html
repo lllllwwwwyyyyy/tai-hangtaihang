@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>道路实时人流监控</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #f5f5f5;
+            font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
+        }
+
+        /* 地图容器 - 全屏自适应，背景完全匹配你的地图 */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: url('img/map.png') no-repeat center center;
+            background-size: cover;
+            background-position: center;
+            background-color: #e8e4d8;
+        }
+
+        /* 人流点通用样式 */
+        .flow-point {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        /* 脉冲呼吸动画，模拟人流流动感 */
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+        }
+
+        .flow-point:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 20;
+        }
+
+        /* 人流等级配色 - 避开地图本身的色调，高对比度 */
+        .level-high {
+            width: 24px;
+            height: 24px;
+            background: #165DFF;
+            border: 2px solid #fff;
+        }
+        .level-medium {
+            width: 20px;
+            height: 20px;
+            background: #FF7D00;
+            border: 2px solid #fff;
+        }
+        .level-low {
+            width: 16px;
+            height: 16px;
+            background: #722ED1;
+            border: 2px solid #fff;
+        }
+
+        /* 点的悬浮提示框 */
+        .point-tooltip {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .flow-point:hover .point-tooltip {
+            opacity: 1;
+        }
+
+        /* 图例面板 - 移到左下角 */
+        .legend-panel {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: rgba(255,255,255,0.95);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        .legend-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .dot-high {
+            width: 16px;
+            height: 16px;
+            background: #165DFF;
+        }
+        .dot-medium {
+            width: 14px;
+            height: 14px;
+            background: #FF7D00;
+        }
+        .dot-low {
+            width: 12px;
+            height: 12px;
+            background: #722ED1;
+        }
+
+        /* 实时统计面板 - 移到左上角，注意避开返回箭头 */
+        .stat-panel {
+            position: fixed;
+            top: 24px;
+            left: 80px;
+            background: rgba(255,255,255,0.95);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 100;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #165DFF;
+        }
+
+        /* 返回箭头按钮样式 */
+        .back-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #165DFF;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            cursor: pointer;
+            border: none;
+            line-height: 1;
+        }
+
+        .back-arrow:hover {
+            background: #165DFF;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(22,93,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .stat-panel {
+                top: 16px;
+                left: 70px;
+                padding: 10px 16px;
+            }
+            .stat-number {
+                font-size: 22px;
+            }
+            .stat-title {
+                font-size: 12px;
+            }
+            .back-arrow {
+                width: 38px;
+                height: 38px;
+                font-size: 24px;
+                top: 15px;
+                left: 15px;
+            }
+            .legend-panel {
+                padding: 12px;
+                bottom: 16px;
+                left: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container" id="map">
+        <!-- 人流点会通过JS动态生成 -->
+    </div>
+
+    <!-- 返回箭头：超链接，href地址请自行替换为实际路径 -->
+    <a href="智能导览.html" class="back-arrow" id="backArrow">←</a>
+
+    <!-- 实时统计面板 - 左上角 -->
+    <div class="stat-panel">
+        <div class="stat-title">当前道路总客流量</div>
+        <div class="stat-number" id="totalFlow">0</div>
+    </div>
+
+    <!-- 图例面板 - 左下角 -->
+    <div class="legend-panel">
+        <div class="legend-title">人流等级图例</div>
+        <div class="legend-item">
+            <div class="legend-dot dot-high"></div>
+            <span>深蓝色点：20人/个</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot dot-medium"></div>
+            <span>橙色点：10人/个</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot dot-low"></div>
+            <span>紫色点：5人/个</span>
+        </div>
+    </div>
+
+    <script>
+        // 1. 沿地图道路预设的所有点位（百分比坐标，自适应地图缩放）
+        const roadPoints = [
+            // 娘子关-地都村-长生口村 黄线
+            { name: "娘子关", x: 0.16, y: 0.56 },
+            { name: "娘子关-地都村路段", x: 0.21, y: 0.52 },
+            { name: "地都村", x: 0.25, y: 0.49 },
+            { name: "地都村-长生口村路段", x: 0.30, y: 0.47 },
+            { name: "长生口村", x: 0.35, y: 0.47 },
+            // 长生口村-乏驴岭-宋古城村 黄线
+            { name: "长生口村-乏驴岭路段", x: 0.38, y: 0.45 },
+            { name: "乏驴岭", x: 0.35, y: 0.44 },
+            { name: "乏驴岭-宋古城村路段", x: 0.40, y: 0.44 },
+            { name: "宋古城村", x: 0.43, y: 0.45 },
+            // 宋古城村-石桥头村-青石岭-威州镇-土门关 黄线
+            { name: "宋古城村-石桥头村路段", x: 0.45, y: 0.41 },
+            { name: "石桥头村", x: 0.46, y: 0.38 },
+            { name: "石桥头村-青石岭路段", x: 0.52, y: 0.29 },
+            { name: "青石岭", x: 0.58, y: 0.21 },
+            { name: "青石岭-威州镇路段", x: 0.63, y: 0.19 },
+            { name: "威州镇", x: 0.68, y: 0.17 },
+            { name: "威州镇-白王庄村路段", x: 0.73, y: 0.22 },
+            { name: "白王庄村", x: 0.77, y: 0.27 },
+            { name: "白王庄村-土门关路段", x: 0.85, y: 0.28 },
+            { name: "土门关", x: 0.94, y: 0.28 },
+            // 固关镇-核桃园村-小龙窝村-秀林镇-上安镇 蓝线
+            { name: "固关镇", x: 0.23, y: 0.72 },
+            { name: "固关镇-核桃园村路段", x: 0.25, y: 0.67 },
+            { name: "核桃园村", x: 0.28, y: 0.61 },
+            { name: "核桃园村-小龙窝村路段", x: 0.32, y: 0.59 },
+            { name: "小龙窝村", x: 0.37, y: 0.58 },
+            { name: "小龙窝村-秀林镇路段", x: 0.45, y: 0.50 },
+            { name: "秀林镇", x: 0.52, y: 0.45 },
+            { name: "秀林镇-于家石头村路段", x: 0.60, y: 0.42 },
+            { name: "于家石头村", x: 0.67, y: 0.39 },
+            { name: "于家石头村-上安镇路段", x: 0.71, y: 0.36 },
+            { name: "上安镇", x: 0.74, y: 0.33 },
+            { name: "上安镇-亮子岭路段", x: 0.79, y: 0.34 },
+            { name: "亮子岭", x: 0.84, y: 0.35 }
+        ];
+
+        // 2. 人流等级配置
+        const flowLevelConfig = [
+            { level: 'high', people: 20 },
+            { level: 'medium', people: 10 },
+            { level: 'low', people: 5 }
+        ];
+
+        // 3. 生成随机人流点
+        function generateRandomFlowPoints() {
+            const mapContainer = document.getElementById('map');
+            // 清空之前的点
+            mapContainer.innerHTML = '';
+            let totalPeople = 0;
+
+            // 遍历所有道路点位，随机生成人流点
+            roadPoints.forEach(spot => {
+                // 70%概率在这个点位生成人流点，模拟真实的道路人流分布
+                if (Math.random() > 0.3) {
+                    // 随机选择人流等级
+                    const randomLevel = flowLevelConfig[Math.floor(Math.random() * flowLevelConfig.length)];
+                    totalPeople += randomLevel.people;
+
+                    // 创建点元素
+                    const pointEl = document.createElement('div');
+                    pointEl.className = `flow-point level-${randomLevel.level}`;
+                    pointEl.style.left = `${spot.x * 100}%`;
+                    pointEl.style.top = `${spot.y * 100}%`;
+
+                    // 悬浮提示
+                    pointEl.innerHTML = `
+                        <div class="point-tooltip">
+                            ${spot.name} · ${randomLevel.people}人
+                        </div>
+                    `;
+
+                    mapContainer.appendChild(pointEl);
+                }
+            });
+
+            // 更新总客流量统计
+            document.getElementById('totalFlow').textContent = totalPeople;
+        }
+
+       
+
+        // 4. 页面加载时自动刷新（核心需求：每次进入页面自动刷新）
+        window.addEventListener('load', generateRandomFlowPoints);
+    </script>
+</body>
+</html>

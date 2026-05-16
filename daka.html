@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>景点打卡裸眼3D查看</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        .map-box {
+            width: 100vw;
+            height: 100vh;
+            background: url('img/map.png') no-repeat center;
+            background-size: cover;
+            position: relative;
+        }
+
+        .point {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            border: 2px solid #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .no-check {
+            background: #e53935;
+        }
+
+        .checked {
+            background: #2e7d32;
+        }
+
+        .point:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .legend-panel {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .legend-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .dot-red {
+            background: #e53935;
+        }
+
+        .dot-green {
+            background: #2e7d32;
+        }
+
+        /* 重置按钮样式 - 左上角，需避开返回箭头 */
+        .reset-btn {
+            position: fixed;
+            top: 20px;
+            left: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: none;
+            color: #e53935;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .reset-btn:hover {
+            background: #e53935;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        /* 返回箭头按钮样式 */
+        .back-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #e53935;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            cursor: pointer;
+            border: none;
+            line-height: 1;
+        }
+
+        .back-arrow:hover {
+            background: #e53935;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(229,57,53,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .point {
+                width: 22px;
+                height: 22px;
+            }
+            .legend-panel {
+                padding: 10px 14px;
+                bottom: 16px;
+                left: 16px;
+            }
+            .legend-title {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            .legend-item {
+                font-size: 12px;
+            }
+            .legend-dot {
+                width: 14px;
+                height: 14px;
+            }
+            .reset-btn {
+                top: 16px;
+                left: 70px;
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            .back-arrow {
+                width: 38px;
+                height: 38px;
+                font-size: 24px;
+                top: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-box" id="map"></div>
+
+    <!-- 返回箭头：超链接，href地址请自行替换为实际路径 -->
+    <a href="智能导览.html" class="back-arrow" id="backArrow">←</a>
+
+    <div class="legend-panel">
+        <div class="legend-title">打卡图例</div>
+        <div class="legend-item">
+            <div class="legend-dot dot-red"></div>
+            <span>红色圆点：未打卡</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot dot-green"></div>
+            <span>绿色圆点：已打卡</span>
+        </div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">🗑️ 重置所有打卡</button>
+
+    <script>
+        // 景点列表
+        const spotList = [
+            { id: 1, name: "娘子关", x: 16, y: 56, img: "娘子关.jpg" },
+            { id: 2, name: "地都村", x: 25, y: 49, img: "地都村.jpg" },
+            { id: 3, name: "长生口村", x: 35, y: 47, img: "长生口村.jpg" },
+            { id: 4, name: "核桃园村", x: 28, y: 61, img: "核桃园村.jpg" },
+            { id: 5, name: "小龙窝村", x: 37, y: 58, img: "小龙窝村.jpg" },
+            { id: 6, name: "固关镇", x: 23, y: 72, img: "固关镇.jpg" },
+            { id: 7, name: "乏驴岭", x: 35, y: 44, img: "乏驴岭.jpg" },
+            { id: 8, name: "宋古城村", x: 43, y: 45, img: "宋古城村.jpg" },
+            { id: 9, name: "石桥头村", x: 46, y: 38, img: "石桥头村.jpg" },
+            { id: 10, name: "秀林镇", x: 52, y: 45, img: "秀林镇.jpg" }
+        ];
+
+        let mapContainer = document.getElementById("map");
+
+        // 读取打卡记录
+        function loadCheckData() {
+            try {
+                const saved = localStorage.getItem("checkData");
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch(e) {
+                console.error("读取localStorage失败:", e);
+            }
+            return [];
+        }
+
+        // 保存打卡记录
+        function saveCheckData(arr) {
+            localStorage.setItem("checkData", JSON.stringify(arr));
+        }
+
+        // 重置所有打卡记录
+        function resetAllCheck() {
+            if (confirm("确定要重置所有打卡记录吗？所有景点将变为未打卡状态。")) {
+                saveCheckData([]);
+                renderMap();
+            }
+        }
+
+        // 渲染所有景点
+        function renderMap() {
+            mapContainer.innerHTML = "";
+            let checkArr = loadCheckData();
+            
+            spotList.forEach(item => {
+                const isChecked = checkArr.includes(item.id);
+                const link = document.createElement("a");
+                const alreadyChecked = isChecked ? "1" : "0";
+                link.href = `./3d-view.html?img=${encodeURIComponent(item.img)}&name=${encodeURIComponent(item.name)}&id=${item.id}&checked=${alreadyChecked}`;
+                link.target = "_blank";
+                link.className = `point ${isChecked ? "checked" : "no-check"}`;
+                link.style.left = item.x + "%";
+                link.style.top = item.y + "%";
+                link.setAttribute("data-id", item.id);
+                link.setAttribute("data-name", item.name);
+                
+                link.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    let currentCheckArr = loadCheckData();
+                    if (!currentCheckArr.includes(item.id)) {
+                        currentCheckArr.push(item.id);
+                        saveCheckData(currentCheckArr);
+                        link.className = "point checked";
+                    }
+                    setTimeout(() => {
+                        const finalChecked = loadCheckData().includes(item.id) ? "1" : "0";
+                        const finalUrl = `./3d-view.html?img=${encodeURIComponent(item.img)}&name=${encodeURIComponent(item.name)}&id=${item.id}&checked=${finalChecked}`;
+                        window.open(finalUrl, "_blank");
+                    }, 50);
+                });
+                mapContainer.appendChild(link);
+            });
+        }
+
+        
+
+        window.addEventListener('pageshow', function() {
+            renderMap();
+        });
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'checkData') {
+                renderMap();
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', resetAllCheck);
+        renderMap();
+    </script>
+</body>
+</html>

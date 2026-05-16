@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太行古道景点列表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #f8f5eb;
+            padding-bottom: 30px;
+        }
+
+        /* 顶部导航 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* 超链接去掉默认下划线、颜色 */
+        .navbar-left, .detail-back {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .navbar-left, .navbar-right {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .navbar-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* 景点列表 - 两列布局 */
+        .spot-list {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        /* 景点卡片 */
+        .spot-card {
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .spot-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .spot-info {
+            padding: 16px;
+        }
+
+        .spot-info h3 {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .spot-info p {
+            font-size: 14px;
+            color: #999;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 详情页 */
+        .detail-page {
+            display: none;
+        }
+
+        .detail-header {
+            width: 100%;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .detail-back {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .detail-content {
+            padding: 20px;
+            background-color: #fff;
+            margin-top: -30px;
+            border-radius: 20px 20px 0 0;
+            min-height: calc(100vh - 250px);
+        }
+
+        .detail-content h2 {
+            font-size: 24px;
+            color: #222;
+            margin-bottom: 16px;
+        }
+
+        .detail-content p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 景点列表页 -->
+    <div id="listPage">
+        <div class="navbar">
+            <!-- 【顶部返回箭头】改成超链接，href里填你的地址 -->
+            <a class="navbar-left" href="智能导览.html">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="navbar-title">太行古道景点列表</div>
+            <div class="navbar-right">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    <line x1="12" y1="12" x2="12.01" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="spot-list">
+            <!-- 1. 娘子关 -->
+            <div class="spot-card" onclick="showDetail('娘子关')">
+                <img src="img/niangziguan.jpg" alt="娘子关">
+                <div class="spot-info">
+                    <h3>娘子关</h3>
+                    <p>天下第九关，平阳公主娘子军驻守的传奇...</p>
+                </div>
+            </div>
+            <!-- 2. 乏驴岭 -->
+            <div class="spot-card" onclick="showDetail('乏驴岭')">
+                <img src="img/falvling.jpg" alt="乏驴岭">
+                <div class="spot-info">
+                    <h3>乏驴岭</h3>
+                    <p>韩信“背水一战”的主战场，古驿道车辙诉说千年...</p>
+                </div>
+            </div>
+            <!-- 3. 长生口村 -->
+            <div class="spot-card" onclick="showDetail('长生口村')">
+                <img src="img/changshengkou.jpg" alt="长生口村">
+                <div class="spot-info">
+                    <h3>长生口村</h3>
+                    <p>八路军长生口伏击战旧址，抗战烽火燃古道...</p>
+                </div>
+            </div>
+            <!-- 4. 地都村 -->
+            <div class="spot-card" onclick="showDetail('地都村')">
+                <img src="img/diducun.jpg" alt="地都村">
+                <div class="spot-info">
+                    <h3>地都村</h3>
+                    <p>晋冀咽喉古村，明清商道驿站，古民居保存完好...</p>
+                </div>
+            </div>
+            <!-- 5. 微水镇 -->
+            <div class="spot-card" onclick="showDetail('微水镇')">
+                <img src="img/weishui.jpg" alt="微水镇">
+                <div class="spot-info">
+                    <h3>微水镇</h3>
+                    <p>背水一战古战场，韩信列阵破赵军的传奇之地...</p>
+                </div>
+            </div>
+            <!-- 6. 于家石头村 -->
+            <div class="spot-card" onclick="showDetail('于家石头村')">
+                <img src="img/yujia.jpg" alt="于家石头村">
+                <div class="spot-info">
+                    <h3>于家石头村</h3>
+                    <p>于谦后裔聚居地，石头筑城的千年古村...</p>
+                </div>
+            </div>
+            <!-- 7. 小龙窝村 -->
+            <div class="spot-card" onclick="showDetail('小龙窝村')">
+                <img src="img/xiaolongwo.jpg" alt="小龙窝村">
+                <div class="spot-info">
+                    <h3>小龙窝村</h3>
+                    <p>太行古道活化石，石头古村的岁月沧桑...</p>
+                </div>
+            </div>
+            <!-- 8. 宋古城村 -->
+            <div class="spot-card" onclick="showDetail('宋古城村')">
+                <img src="img/songgucheng.jpg" alt="宋古城村">
+                <div class="spot-info">
+                    <h3>宋古城村</h3>
+                    <p>井陉古县城遗址，千年城郭见证古道兴衰...</p>
+                </div>
+            </div>
+            <!-- 9. 土门关 -->
+            <div class="spot-card" onclick="showDetail('土门关')">
+                <img src="img/tumenguan.jpg" alt="土门关">
+                <div class="spot-info">
+                    <h3>土门关</h3>
+                    <p>太行第五陉门户，韩信出井陉的东大门...</p>
+                </div>
+            </div>
+            <!-- 10. 固关镇 -->
+            <div class="spot-card" onclick="showDetail('固关镇')">
+                <img src="img/guanguan.jpg" alt="固关镇">
+                <div class="spot-info">
+                    <h3>固关镇</h3>
+                    <p>明长城雄关，晋冀古道西大门，边塞风情浓厚...</p>
+                </div>
+            </div>
+            <!-- 11. 威州镇 -->
+            <div class="spot-card" onclick="showDetail('威州镇')">
+                <img src="img/weizhou.jpg" alt="威州镇">
+                <div class="spot-info">
+                    <h3>威州镇</h3>
+                    <p>千年古镇，古道商埠重镇，晋冀物资集散中心...</p>
+                </div>
+            </div>
+            <!-- 12. 石桥头村 -->
+            <div class="spot-card" onclick="showDetail('石桥头村')">
+                <img src="img/shiqiaotou.jpg" alt="石桥头村">
+                <div class="spot-info">
+                    <h3>石桥头村</h3>
+                    <p>明代古石桥横跨古道，商旅往来必经之地...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情页 -->
+    <div id="detailPage" class="detail-page">
+        <div class="detail-header" id="detailBg">
+            <!-- 【详情页返回箭头】也改成超链接，填地址即可 -->
+            <a class="detail-back" href="这里填跳转地址">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+        </div>
+        <div class="detail-content">
+            <h2 id="detailTitle"></h2>
+            <p id="detailText"></p>
+        </div>
+    </div>
+
+    <script>
+        // 每个景点300字左右的历史典故/故事
+        const spotData = {
+            "娘子关": "娘子关，古称苇泽关，是万里长城著名关隘，因唐太宗李世民的妹妹平阳公主率娘子军在此驻守而得名，有“天下第九关”之称。关城依山傍水，地势险要，是晋冀两省咽喉要道。相传平阳公主当年在此操练女兵，镇守边关，她的队伍纪律严明、英勇善战，当地百姓为纪念她，便将此关改名为娘子关。关下的娘子关瀑布声如雷鸣，与长城雄关相映成趣，形成“雄关漫道真如铁”的壮丽景观。这里不仅是古代军事要地，也是晋商古道的重要节点，千年来见证了无数商旅往来与战火硝烟，如今关城、长城、瀑布共同构成了一幅历史与自然交融的画卷。",
+            "乏驴岭": "乏驴岭是井陉古道上的险要山岭，也是韩信“背水一战”的主战场之一。公元前204年，韩信率汉军出井陉，在此布下奇阵：他令轻骑绕后，主力则背靠绵蔓河列阵，以“置之死地而后生”的战法大破赵军。相传当时赵军见汉军列阵奇特，以为韩信不懂兵法，便倾巢而出追击，结果中了埋伏，全军覆没。乏驴岭上至今仍保留着古驿道遗迹，路面上的车辙深达数寸，仿佛能听到当年战马嘶鸣与喊杀声。这里也是抗战时期的重要战场，八路军曾在此伏击日军，留下了红色革命的足迹。",
+            "长生口村": "长生口村是井陉古道上的红色古村，1938年2月，八路军129师在此打响了著名的“长生口伏击战”。当时日军辎重部队沿古道西进，刘伯承、邓小平指挥八路军设伏于长生口峡谷，趁敌军进入包围圈时突然发起攻击，一举歼灭日军130余人，击毁汽车10余辆，缴获大量武器物资。这场战斗打破了日军不可战胜的神话，极大地鼓舞了全国军民的抗日斗志。村内至今仍保留着当年的战场旧址和八路军指挥部遗址，村口的老槐树见证了这场胜利，如今这里已成为重要的爱国主义教育基地，讲述着古道上的抗战故事。",
+            "地都村": "地都村是一座依晋冀古道而建的千年古村，因地处晋冀两省交界的咽喉要道而得名，素有“晋冀通衢”之称。自明清以来，这里便是晋商往来的重要驿站，村内保存着大量明清时期的古民居，这些建筑以石头为基，砖木结构，雕梁画栋，具有典型的北方商道古村特色。村中的古街由青石铺成，路面上的车辙印记深达数寸，诉说着当年商旅往来的繁华。相传清代一位晋商路过此地，见村中小河清澈见底，便在此修建了一座石桥，如今这座石桥依然横跨村河之上，见证着古村的岁月变迁。",
+            "微水镇": "微水镇是井陉古道上的重镇，也是韩信“背水一战”的核心战场。公元前204年，韩信率汉军抵达微水河畔，他深知赵军轻敌，便制定了奇谋：他派轻骑偷袭赵军大营，自己则率主力在微水河畔列阵，让士兵背靠河水，无路可退，以此激发士兵的求生斗志。战斗打响后，汉军士兵人人奋勇，拼死作战，最终大破赵军，斩杀赵军主将陈余，活捉赵王歇。这场战役是中国历史上以少胜多的经典战例，“背水一战”的成语便由此而来。如今微水镇仍保留着韩信列阵的遗址，河畔的古战场已成为人们探访历史的好去处。",
+            "于家石头村": "于家石头村是明代名臣于谦后裔聚居的古村落，相传于谦蒙冤后，其后人隐居于此，以石头筑屋、以石头铺路，形成了这座独具特色的石头古村。村内所有建筑均由石头砌成，石楼、石屋、石街、石桥随处可见，被誉为“石头的王国”。村落布局按北斗七星排列，暗合风水之说，村内的于氏宗祠始建于明代，至今仍保存完好。这里的石头民居冬暖夏凉，历经数百年风雨依然坚固，村民们至今仍保留着传统的生活习俗，走在古村中，仿佛穿越回了明清时期，能感受到古村的宁静与沧桑。",
+            "小龙窝村": "小龙窝村是一座藏在太行深处的石头古村，也是井陉古道上的“活化石”。相传古代有一条小龙在此修炼，因触犯天条被贬，化身为龙窝，故名小龙窝。村落依山而建，全部由石头筑成，石屋、石墙、石阶层层叠叠，与青山融为一体。村内的古驿道穿村而过，路面上的车辙印记诉说着千年的商旅往事。小龙窝村不仅是晋商古道的重要节点，也是抗战时期的秘密交通线，八路军曾在此设立联络点，传递情报、护送物资。如今，这里的古民居依然保存完好，成为研究太行山区古村落建筑与古道文化的重要窗口。",
+            "宋古城村": "宋古城村是井陉古县城的遗址，始建于宋代，历经千年风雨，至今仍保留着古城墙、古县衙、古驿站等遗迹。古城墙由夯土筑成，周长约1.5公里，虽已残破，但轮廓依然清晰。相传宋代名将韩世忠曾在此驻守，抵御金兵入侵，古城内的城隍庙始建于宋代，香火不断。作为晋冀古道上的重要县城，这里曾是商旅往来的必经之地，城内的古街店铺林立，如今仍能看到当年的商铺遗迹。宋古城村不仅见证了井陉的历史变迁，也承载着古道的繁华与沧桑，漫步古城墙下，仿佛能听到千年前的市井喧嚣。",
+            "土门关": "土门关是井陉古道的东大门，也是“太行八陉”中第五陉的门户，自古为兵家必争之地。公元前204年，韩信率汉军出井陉，首先攻克土门关，打开了进入赵国的通道，为背水一战奠定了基础。关城始建于汉代，历代均有修缮，如今仍保留着部分城墙遗迹。土门关地势险要，扼守晋冀咽喉，历史上曾发生过多次战役，唐代安史之乱时，郭子仪曾在此击败叛军。这里也是晋商古道的起点，无数商队从这里进入山西，踏上丝绸之路的征程，如今关城遗址旁的古道依然蜿蜒，诉说着千年的战事与商道故事。",
+            "固关镇": "固关镇位于井陉古道的西端，是明长城的重要关隘，与娘子关并称“晋冀雄关”。关城始建于明代，城墙由青石砌成，高大坚固，关楼上的箭窗、垛口依然清晰可见。相传明代大将徐达曾在此督建关城，因地势险要、易守难攻，故名“固关”。固关不仅是军事要地，也是晋商往来的重要关卡，商队经过此处需查验路引、缴纳关税，关城旁的古驿站遗址仍在，诉说着当年的商道繁华。如今，固关长城已被列为省级文物保护单位，站在关城之上，可远眺太行群山，感受边塞雄关的壮丽风光。",
+            "威州镇": "威州镇是井陉古道上的千年古镇，自汉代设县以来，一直是晋冀两省的物资集散中心。古镇位于绵蔓河畔，水陆交通便利，明清时期，这里商铺林立，钱庄、票号、客栈一应俱全，晋商、冀商在此交易茶叶、丝绸、煤炭，十分繁华。相传清代一位富商在此修建了一座大戏楼，每逢庙会，戏台上锣鼓喧天，台下人头攒动，热闹非凡。威州镇也是红色革命的重要据点，八路军曾在此建立抗日民主政府，领导当地群众开展抗日斗争。如今，古镇的古街、古桥依然保存完好，漫步其间，仍能感受到当年商埠重镇的繁华气息。",
+            "石桥头村": "石桥头村因一座明代古石桥而得名，是井陉古道上商旅往来的必经之地。这座石桥始建于明代万历年间，全部由青石砌成，横跨在绵蔓河支流之上，历经数百年洪水冲击依然坚固如初。桥面上的车辙印记深达数寸，是当年商队骡马往来留下的痕迹。相传清代一位晋商路过此地，见石桥破旧，便出资重修，桥身刻有他的名字和修桥年份，至今仍清晰可见。石桥头村的古民居沿古道而建，错落有致，村内的老槐树已有数百年历史，见证着古村的变迁。如今，石桥依然是村民往来的通道，也成为游客探访古道文化的热门景点。"
+        };
+
+        // 显示详情页
+        function showDetail(name) {
+            document.getElementById("listPage").style.display = "none";
+            document.getElementById("detailPage").style.display = "block";
+            document.getElementById("detailTitle").innerText = name;
+            document.getElementById("detailText").innerText = spotData[name];
+            // 设置背景图（和卡片图片一致）
+            const bgMap = {
+                "娘子关": "img/niangziguan.jpg",
+                "乏驴岭": "img/falvling.jpg",
+                "长生口村": "img/changshengkou.jpg",
+                "地都村": "img/diducun.jpg",
+                "微水镇": "img/weishui.jpg",
+                "于家石头村": "img/yujia.jpg",
+                "小龙窝村": "img/xiaolongwo.jpg",
+                "宋古城村": "img/songgucheng.jpg",
+                "土门关": "img/tumenguan.jpg",
+                "固关镇": "img/guanguan.jpg",
+                "威州镇": "img/weizhou.jpg",
+                "石桥头村": "img/shiqiaotou.jpg"
+            };
+            document.getElementById("detailBg").style.backgroundImage = `url(${bgMap[name]})`;
+        }
+    </script>
+</body>
+</html>

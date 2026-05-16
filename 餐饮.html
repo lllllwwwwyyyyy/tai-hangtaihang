@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美食预约平台</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system;}
+        body{background:#f5f5f7;padding-bottom:60px;}
+        .cate-item,.dis-item,.shop-card,.nav-item,.back,.book-btn,.opt-cancel,.time-item,.btn-cancel,.btn-sure{
+            cursor:pointer;
+        }
+        .search-bar{padding:16px;}
+        .search-input{width:100%;height:42px;background:#fff;border-radius:12px;border:none;outline:none;padding:0 16px;font-size:15px;box-shadow:0 1px 3px #00000010;}
+        /* 新增返回按钮样式 */
+        .back-to-center{
+            margin:0 16px 12px;
+            padding:10px 16px;
+            background:#fff;
+            border-radius:10px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+            color:#333;
+            font-size:14px;
+            box-shadow:0 1px 3px #00000010;
+        }
+        .cate-wrap{padding:0 16px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar:none;}
+        .cate-item{white-space:nowrap;padding:7px 16px;border-radius:20px;background:#fff;font-size:14px;color:#666;}
+        .cate-item.active{background:#ff3b30;color:#fff;}
+        .dis-wrap{padding:0 16px 15px;display:flex;gap:6px;}
+        .dis-item{padding:6px 12px;border-radius:16px;border:1px solid #ddd;font-size:13px;color:#555;}
+        .dis-item.active{border-color:#ff3b30;color:#ff3b30;}
+        .shop-list{padding:0 16px 15px;}
+        .shop-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:12px;display:flex;gap:12px;}
+        .shop-img{width:90px;height:90px;border-radius:10px;object-fit:cover;}
+        .shop-info{flex:1;}
+        .shop-name{font-size:16px;font-weight:500;color:#111;}
+        .shop-score{color:#ff9500;font-size:14px;margin:4px 0;}
+        .shop-txt{font-size:13px;color:#888;line-height:1.4;}
+        .shop-tag{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+        .tag{font-size:12px;padding:2px 8px;border-radius:10px;background:#f2f2f7;color:#666;}
+        .top-tag{font-size:12px;background:#ff3b30;color:#fff;padding:2px 8px;border-radius:10px;}
+        .footer-nav{position:fixed;bottom:0;left:0;width:100%;height:50px;background:#fff;display:flex;border-top:1px solid #eee;z-index:99;}
+        .nav-item{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#666;}
+        .nav-item.active{color:#ff3b30;}
+        .nav-icon{font-size:18px;margin-bottom:2px;}
+        .detail-mask{position:fixed;inset:0;background:#fff;z-index:999;display:none;overflow:auto;}
+        .det-top{display:flex;align-items:center;padding:15px;border-bottom:#eee solid 1px;}
+        .back{font-size:18px;margin-right:15px;}
+        .det-banner{width:100%;height:220px;object-fit:cover;}
+        .det-main{padding:16px;}
+        .det-title{font-size:20px;font-weight:bold;}
+        .det-row{display:flex;flex-wrap:wrap;gap:15px;margin:12px 0;}
+        .det-desc{color:#666;font-size:14px;line-height:1.6;}
+        .book-btn{width:100%;height:44px;background:#ff3b30;color:#fff;border:none;border-radius:12px;font-size:15px;margin-top:20px;}
+        .book-mask{position:fixed;inset:0;background:#00000050;display:none;align-items:center;justify-content:center;z-index:1000;}
+        .book-box{width:88%;background:#fff;border-radius:16px;padding:20px;}
+        .book-title{font-size:17px;font-weight:bold;text-align:center;margin-bottom:18px;}
+        .line{margin-bottom:15px;}
+        .line label{font-size:14px;color:#333;display:block;margin-bottom:6px;}
+        .line input,.line select{width:100%;height:40px;border:1px solid #eee;border-radius:8px;padding:0 10px;outline:none;}
+        .time-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+        .time-item{padding:6px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;}
+        .time-item.on{background:#ff3b30;color:#fff;border-color:#ff3b30;}
+        .btn-group{display:flex;gap:10px;margin-top:20px;}
+        .btn-cancel{flex:1;height:42px;border-radius:8px;border:none;background:#eee;}
+        .btn-sure{flex:1;height:42px;border-radius:8px;border:none;background:#ff3b30;color:#fff;}
+        .empty{text-align:center;padding:60px;color:#999;font-size:14px;}
+        .record-page{position:fixed;inset:0;background:#f5f5f7;z-index:998;display:none;overflow:auto;padding-bottom:60px;}
+        .rec-top{display:flex;align-items:center;padding:15px;border-bottom:1px solid #eee;position:relative;}
+        .rec-top .back{position:absolute;left:15px;top:15px;margin-right:0;}
+        .rec-top-title{width:100%;text-align:center;font-size:17px;font-weight:bold;}
+        .rec-list{padding:15px;}
+        .rec-item{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;}
+        .rec-shop{font-size:15px;font-weight:500;}
+        .rec-info{font-size:13px;color:#666;margin:6px 0;line-height:1.5;}
+        .rec-opt{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;}
+        .opt-cancel{font-size:13px;color:#ff3b30;}
+        /* 评论区样式 */
+        .comment-wrap{margin-top:30px;padding-top:20px;border-top:1px solid #eee;}
+        .comment-title{font-size:16px;font-weight:bold;margin-bottom:15px;}
+        .comment-item{background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:10px;}
+        .comment-user{font-size:14px;color:#333;font-weight:500;}
+        .comment-text{font-size:13px;color:#666;margin-top:5px;line-height:1.5;}
+        .comment-time{font-size:12px;color:#999;margin-top:5px;}
+    </style>
+</head>
+<body>
+    <div id="homePage">
+        <div class="search-bar">
+            <input class="search-input" id="searchVal" placeholder="搜索店铺、美食、菜系">
+        </div>
+        <!-- 新增：返回游客中心按钮 -->
+        <div class="back-to-center" onclick="goToYouke()">
+            ← 返回游客中心
+        </div>
+        <div class="cate-wrap">
+            <div class="cate-item active" data-cate="all">全部</div>
+            <div class="cate-item" data-cate="meal">正餐</div>
+            <div class="cate-item" data-cate="snack">小吃</div>
+            <div class="cate-item" data-cate="dessert">甜品</div>
+            <div class="cate-item" data-cate="drink">饮品</div>
+            <div class="cate-item" data-cate="hotpot">火锅</div>
+        </div>
+        <div class="dis-wrap">
+            <div class="dis-item active" data-dis="0">不限距离</div>
+            <div class="dis-item" data-dis="100">100米内</div>
+            <div class="dis-item" data-dis="200">200米内</div>
+            <div class="dis-item" data-dis="500">500米内</div>
+            <div class="dis-item" data-dis="1000">1000米内</div>
+            <div class="dis-item" data-dis="3000">3000米内</div>
+        </div>
+        <div class="shop-list" id="shopList"></div>
+    </div>
+
+    <div class="record-page" id="recordPage">
+        <div class="rec-top">
+            <span class="back" onclick="backToHome()">←</span>
+            <div class="rec-top-title">我的预约记录</div>
+        </div>
+        <div class="rec-list" id="recordList"></div>
+    </div>
+
+    <div class="detail-mask" id="detailPage">
+        <div class="det-top">
+            <span class="back" onclick="closeDetail()">←</span>
+            <span>店铺详情</span>
+        </div>
+        <img class="det-banner" id="detImg" src="">
+        <div class="det-main">
+            <h2 class="det-title" id="detName"></h2>
+            <div class="shop-score" id="detScore"></div>
+            <div class="det-row">
+                <div><span>人均：</span><span id="detPrice"></span></div>
+                <div><span>距离：</span><span id="detDis"></span></div>
+            </div>
+            <div class="det-row">
+                <div><span>地址：</span><span id="detAddr"></span></div>
+                <div><span>营业：</span><span id="detTime"></span></div>
+            </div>
+            <p class="det-desc" id="detDesc"></p>
+            <button class="book-btn" onclick="openBook()">立即预约</button>
+
+            <!-- 新增评论区 -->
+            <div class="comment-wrap" id="commentBox">
+                <div class="comment-title">用户评价</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="book-mask" id="bookPage">
+        <div class="book-box">
+            <h3 class="book-title">用餐预约</h3>
+            <!-- 新增姓名电话 -->
+            <div class="line">
+                <label>预约姓名</label>
+                <input type="text" id="userName" placeholder="请输入真实姓名">
+            </div>
+            <div class="line">
+                <label>联系电话</label>
+                <input type="tel" id="userPhone" placeholder="请输入手机号码">
+            </div>
+            <div class="line">
+                <label>预约日期</label>
+                <input type="date" id="bookDate">
+            </div>
+            <div class="line">
+                <label>用餐人数</label>
+                <select id="bookPeople">
+                    <option>1人</option>
+                    <option>2人</option>
+                    <option>3-4人</option>
+                    <option>5人及以上</option>
+                </select>
+            </div>
+            <div class="line">
+                <label>到店时段</label>
+                <div class="time-group" id="timeGroup">
+                    <div class="time-item">11:00-12:00</div>
+                    <div class="time-item">12:00-13:00</div>
+                    <div class="time-item">13:00-14:00</div>
+                    <div class="time-item">18:00-19:00</div>
+                    <div class="time-item">19:00-20:00</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closeBook()">取消</button>
+                <button class="btn-sure" onclick="submitBook()">确认预约</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-nav">
+        <div class="nav-item active" onclick="switchTab('home')">
+            <div class="nav-icon">🏠</div>
+            <span>首页</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('record')">
+            <div class="nav-icon">📋</div>
+            <span>预约记录</span>
+        </div>
+    </div>
+
+<script>
+const disPool = [50,120,280,450,750,1200,2200];
+function randomDis(){
+    return disPool[Math.floor(Math.random()*disPool.length)];
+}
+
+// 直接跳转游客中心的函数
+function goToYouke(){
+    window.location.href = "智能导览.html";
+}
+
+// 店铺自带评论数据
+let shopData = [
+    {
+        id:1,name:"轻奢法式西餐厅",cate:"meal",
+        img:"https://picsum.photos/id/1060/200/200",score:4.9,price:168,dis:randomDis(),
+        addr:"市中心商业大厦二楼",time:"11:00-22:00",
+        desc:"高端法式西餐，牛排意面为主，环境优雅适合约会。",
+        comment:[
+            {user:"小甜甜",text:"环境超级浪漫，牛排口感很棒，很适合情侣聚餐",time:"2026-05-10"},
+            {user:"美食达人",text:"菜品精致分量足，服务态度很好，值得再来",time:"2026-05-12"}
+        ]
+    },
+    {
+        id:2,name:"江南风味中餐厅",cate:"meal",
+        img:"https://picsum.photos/id/1062/200/200",score:4.8,price:98,dis:randomDis(),
+        addr:"城东休闲美食街",time:"10:30-21:30",
+        desc:"江浙特色家常菜，清淡鲜美，家庭聚餐首选。",
+        comment:[
+            {user:"安安",text:"口味清淡很养胃，家里老人小孩都爱吃",time:"2026-05-09"}
+        ]
+    },
+    {
+        id:3,name:"韩式炭火烤肉店",cate:"meal",
+        img:"https://picsum.photos/id/1065/200/200",score:4.7,price:89,dis:randomDis(),
+        addr:"万达金街底商",time:"11:00-23:00",
+        desc:"正宗韩式烤肉，五花、肥牛品类丰富，搭配泡菜超下饭。",
+        comment:[]
+    },
+    {id:4,name:"日式精致定食屋",cate:"meal",img:"https://picsum.photos/id/1066/200/200",score:4.6,price:76,dis:randomDis(),addr:"文艺路潮流街区",time:"11:00-21:00",desc:"日式拉面、刺身、咖喱饭，口味正宗清淡健康。",comment:[]},
+    {id:5,name:"川湘融合家常菜馆",cate:"meal",img:"https://picsum.photos/id/1068/200/200",score:4.5,price:69,dis:randomDis(),addr:"城南生活广场",time:"10:00-22:00",desc:"川味湘菜结合，荤素菜品齐全，性价比极高。",comment:[]},
+    {id:6,name:"老巷特色炸货铺",cate:"snack",img:"https://picsum.photos/id/1070/200/200",score:4.7,price:25,dis:randomDis(),addr:"老城步行街内",time:"15:00-00:00",desc:"秘制炸串、炸蔬菜，外酥里嫩，夜宵人气小店。",comment:[]},
+    {id:7,name:"正宗陕西凉皮店",cate:"snack",img:"https://picsum.photos/id/1072/200/200",score:4.6,price:12,dis:randomDis(),addr:"校园周边商业街",time:"09:00-20:00",desc:"手工现蒸凉皮，麻酱浓香，清爽开胃。",comment:[]},
+    {id:8,name:"港式鱼蛋牛杂馆",cate:"snack",img:"https://picsum.photos/id/1073/200/200",score:4.5,price:28,dis:randomDis(),addr:"夜市小吃聚集区",time:"16:00-23:00",desc:"港式风味牛杂鱼蛋，汤底醇厚，地道街边美味。",comment:[]},
+    {id:9,name:"网红手抓饼专门店",cate:"snack",img:"https://picsum.photos/id/1075/200/200",score:4.4,price:10,dis:randomDis(),addr:"社区沿街商铺",time:"07:00-21:00",desc:"配料丰富，口味多样，早餐快捷美食。",comment:[]},
+    {id:10,name:"川味麻辣冷吃铺",cate:"snack",img:"https://picsum.photos/id/1076/200/200",score:4.3,price:36,dis:randomDis(),addr:"美食城二楼",time:"11:00-22:00",desc:"冷吃牛肉、兔丁，麻辣鲜香，追剧零食首选。",comment:[]},
+    {id:11,name:"蜜语轻奢甜品坊",cate:"dessert",img:"https://picsum.photos/id/1080/200/200",score:4.8,price:42,dis:randomDis(),addr:"网红打卡街区",time:"10:00-21:00",desc:"动物奶油蛋糕、慕斯甜品，颜值高口感细腻。",comment:[]},
+    {id:12,name:"鲜炖滋补糖水铺",cate:"dessert",img:"https://picsum.photos/id/1081/200/200",score:4.7,price:30,dis:randomDis(),addr:"居民区中心位置",time:"12:00-22:00",desc:"银耳羹、芋圆西米露，温润滋补老少皆宜。",comment:[]},
+    {id:13,name:"韩式雪花冰屋",cate:"dessert",img:"https://picsum.photos/id/1083/200/200",score:4.6,price:35,dis:randomDis(),addr:"商场三楼美食区",time:"10:00-22:30",desc:"多种水果雪花冰，夏日解暑爆款甜品。",comment:[]},
+    {id:14,name:"日式铜锣烧甜品店",cate:"dessert",img:"https://picsum.photos/id/1085/200/200",score:4.5,price:22,dis:randomDis(),addr:"潮流小巷内",time:"09:30-20:30",desc:"现烤铜锣烧，红豆馅料香甜松软。",comment:[]},
+    {id:15,name:"低糖健康烘焙馆",cate:"dessert",img:"https://picsum.photos/id/1086/200/200",score:4.4,price:26,dis:randomDis(),addr:"书香街临街门店",time:"08:00-20:00",desc:"低糖欧包、吐司面包，健康轻食首选。",comment:[]},
+    {id:16,name:"鲜果原叶茶饮旗舰店",cate:"drink",img:"https://picsum.photos/id/1090/200/200",score:4.8,price:22,dis:randomDis(),addr:"广场中心门店",time:"09:00-22:00",desc:"新鲜鲜果制茶，无添加剂，清爽自然。",comment:[]},
+    {id:17,name:"醇香手打奶茶馆",cate:"drink",img:"https://picsum.photos/id/1091/200/200",score:4.7,price:18,dis:randomDis(),addr:"步行街入口",time:"10:00-22:00",desc:"传统手工奶茶，奶香浓郁平价好喝。",comment:[]},
+    {id:18,name:"清爽果味气泡水",cate:"drink",img:"https://picsum.photos/id/1093/200/200",score:4.6,price:15,dis:randomDis(),addr:"校园商圈",time:"09:30-21:30",desc:"多口味气泡果饮，解腻爽口颜值高。",comment:[]},
+    {id:19,name:"意式现磨咖啡馆",cate:"drink",img:"https://picsum.photos/id/1095/200/200",score:4.5,price:32,dis:randomDis(),addr:"商务办公区楼下",time:"08:00-21:00",desc:"拿铁、美式、卡布奇诺，专业现磨咖啡。",comment:[]},
+    {id:20,name:"草本养生茶舍",cate:"drink",img:"https://picsum.photos/id/1096/200/200",score:4.4,price:20,dis:randomDis(),addr:"康养街区",time:"10:00-20:00",desc:"花草养生茶饮，温润养身适合日常饮用。",comment:[]},
+    {id:21,name:"川味牛油老火锅总店",cate:"hotpot",img:"https://picsum.photos/id/1100/200/200",score:4.9,price:108,dis:randomDis(),addr:"美食大道一号商铺",time:"11:00-23:00",desc:"正宗重庆牛油红锅，麻辣醇厚，菜品新鲜齐全。",comment:[]},
+    {id:22,name:"潮汕鲜切牛肉火锅",cate:"hotpot",img:"https://picsum.photos/id/1101/200/200",score:4.8,price:128,dis:randomDis(),addr:"城东餐饮聚集区",time:"11:00-22:00",desc:"每日现切黄牛肉，清汤锅底凸显食材原味。",comment:[]},
+    {id:23,name:"养生菌汤滋补火锅",cate:"hotpot",img:"https://picsum.photos/id/1103/200/200",score:4.7,price:95,dis:randomDis(),addr:"生态休闲园区",time:"10:30-21:30",desc:"野生菌熬制汤底，清淡养生适合老人小孩。",comment:[]},
+    {id:24,name:"市井串串香火锅",cate:"hotpot",img:"https://picsum.photos/id/1105/200/200",score:4.6,price:72,dis:randomDis(),addr:"怀旧风情街区",time:"11:00-00:00",desc:"荤素串串种类繁多，性价比超高年轻人最爱。",comment:[]},
+    {id:25,name:"番茄浓汤鱼火锅",cate:"hotpot",img:"https://picsum.photos/id/1106/200/200",score:4.5,price:86,dis:randomDis(),addr:"湖畔休闲商圈",time:"11:00-22:00",desc:"浓郁番茄汤底搭配鲜鱼，酸甜适口全家爱吃。",comment:[]}
+];
+
+let activeCate="all";
+let activeDis=0;
+let selectTime="";
+let bookRecord=JSON.parse(localStorage.getItem("bookList"))||[];
+
+window.onload=function(){
+    history.pushState({}, '', window.location.href);
+    filterData();
+    bindFilter();
+    bindTimeSelect();
+    renderRecord();
+};
+
+// 物理返回键：在首页按返回，也跳转到游客中心
+window.addEventListener("popstate",function(){
+    let bookShow = document.getElementById("bookPage").style.display === "flex";
+    let detailShow = document.getElementById("detailPage").style.display === "block";
+    let recordShow = document.getElementById("recordPage").style.display === "block";
+
+    if(bookShow){closeBook();history.pushState({},'',location.href);return;}
+    if(detailShow){closeDetail();history.pushState({},'',location.href);return;}
+    if(recordShow){backToHome();history.pushState({},'',location.href);return;}
+    // 只剩美食首页 → 强制跳转
+    window.location.href = "youke.html";
+});
+
+function renderList(arr){
+    let sorted = [...arr].sort((a,b)=>b.score - a.score);
+    sorted = sorted.map((item,idx)=>{
+        let rankText = "";
+        let scoreNum = 90 - idx*2;
+        if(idx===0){rankText="TOP1优选";scoreNum=100;}
+        else if(idx===1){rankText="TOP2精选";scoreNum=95;}
+        else if(idx===2){rankText="TOP3推荐";scoreNum=92;}
+        let original = shopData.find(x=>x.id === item.id);
+        if(original){original.rankText=rankText;original.scoreNum=scoreNum;}
+        return {...item,rankText,scoreNum};
+    });
+    let html="";
+    if(sorted.length===0){
+        html='<div class="empty">暂无匹配店铺</div>';
+    }else{
+        sorted.forEach(item=>{
+            let showTop = item.rankText ? `<span class="top-tag">${item.rankText}</span>` : "";
+            html+=`
+            <div class="shop-card" onclick="openDetail(${item.id})">
+                <img class="shop-img" src="${item.img}">
+                <div class="shop-info">
+                    <div class="shop-name">${item.name}</div>
+                    <div class="shop-score">综合评分 ${item.score} 分</div>
+                    <div class="shop-txt">人均¥${item.price} · 距离${item.dis}米</div>
+                    <div class="shop-tag">
+                        <span class="tag">${getCateName(item.cate)}</span>
+                        ${showTop}
+                        <span class="tag">推荐系数${item.scoreNum}分</span>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+    document.getElementById("shopList").innerHTML=html;
+}
+
+function getCateName(s){
+    let map={meal:"正餐",snack:"小吃",dessert:"甜品",drink:"饮品",hotpot:"火锅"};
+    return map[s]||"人气美食";
+}
+
+// 打开详情 + 加载评论
+function openDetail(id){
+    let d = shopData.find(x=>x.id === id);
+    if(!d) return;
+    document.getElementById("detImg").src=d.img;
+    document.getElementById("detName").innerText=d.name;
+    let titleStr = d.rankText ? `${d.rankText} · ` : "";
+    document.getElementById("detScore").innerText=`${titleStr}推荐系数${d.scoreNum||90}分`;
+    document.getElementById("detPrice").innerText=`${d.price}元/人`;
+    document.getElementById("detDis").innerText=`${d.dis}米`;
+    document.getElementById("detAddr").innerText=d.addr;
+    document.getElementById("detTime").innerText=d.time;
+    document.getElementById("detDesc").innerText=d.desc;
+
+    // 渲染评论
+    let commentHtml = '<div class="comment-title">用户评价</div>';
+    if(d.comment.length===0){
+        commentHtml += '<div style="color:#999;font-size:13px;">暂无用户评价</div>';
+    }else{
+        d.comment.forEach(c=>{
+            commentHtml += `
+            <div class="comment-item">
+                <div class="comment-user">${c.user}</div>
+                <div class="comment-text">${c.text}</div>
+                <div class="comment-time">${c.time}</div>
+            </div>`;
+        });
+    }
+    document.getElementById("commentBox").innerHTML = commentHtml;
+    document.getElementById("detailPage").style.display="block";
+}
+
+function closeDetail(){
+    document.getElementById("detailPage").style.display="none";
+}
+function backToHome(){
+    document.getElementById("recordPage").style.display="none";
+    document.getElementById("homePage").style.display="block";
+    document.querySelectorAll(".nav-item").forEach(v=>v.classList.remove("active"));
+    document.querySelector(".nav-item").classList.add("active");
+}
+function switchTab(type){
+    document.querySelectorAll(".nav-item").forEach(v=>v.classList.remove("active"));
+    event.currentTarget.classList.add("active");
+    if(type==="home"){
+        document.getElementById("homePage").style.display="block";
+        document.getElementById("recordPage").style.display="none";
+    }else{
+        document.getElementById("homePage").style.display="none";
+        document.getElementById("recordPage").style.display="block";
+        renderRecord();
+    }
+}
+
+function openBook(){
+    document.getElementById("bookPage").style.display="flex";
+    document.getElementById("bookDate").value=new Date().toISOString().split('T')[0];
+}
+function closeBook(){
+    document.getElementById("bookPage").style.display="none";
+}
+function submitBook(){
+    let name = document.getElementById("userName").value.trim();
+    let phone = document.getElementById("userPhone").value.trim();
+    let date = document.getElementById("bookDate").value;
+    let people = document.getElementById("bookPeople").value;
+    if(!name){alert("请输入预约姓名");return;}
+    if(!/^1\d{10}$/.test(phone)){alert("请输入正确手机号");return;}
+    if(!selectTime){alert("请选择到店时段");return;}
+    let info={
+        id:Date.now(),
+        shopName:document.getElementById("detName").innerText,
+        userName:name,
+        userPhone:phone,
+        date:date,people:people,time:selectTime,status:"待到店"
+    };
+    bookRecord.unshift(info);
+    localStorage.setItem("bookList",JSON.stringify(bookRecord));
+    alert("预约成功！");
+    closeBook();
+    selectTime="";
+    document.querySelectorAll(".time-item").forEach(t=>t.classList.remove("on"));
+    document.getElementById("userName").value="";
+    document.getElementById("userPhone").value="";
+}
+
+function renderRecord(){
+    let html="";
+    if(bookRecord.length===0){
+        html='<div class="empty">暂无预约订单</div>';
+    }else{
+        bookRecord.forEach((item,index)=>{
+            html+=`
+            <div class="rec-item">
+                <div class="rec-shop">${item.shopName}</div>
+                <div class="rec-info">
+                    预约人：${item.userName}<br>
+                    联系电话：${item.userPhone}<br>
+                    预约日期：${item.date}<br>
+                    用餐人数：${item.people}<br>
+                    到店时段：${item.time}<br>
+                    订单状态：${item.status}
+                </div>
+                <div class="rec-opt">
+                    <span class="opt-cancel" onclick="cancelBook(${index})">取消预约</span>
+                </div>
+            </div>`;
+        });
+    }
+    document.getElementById("recordList").innerHTML=html;
+}
+function cancelBook(idx){
+    if(confirm("确定取消该条预约吗？")){
+        bookRecord.splice(idx,1);
+        localStorage.setItem("bookList",JSON.stringify(bookRecord));
+        renderRecord();
+    }
+}
+
+function bindTimeSelect(){
+    let times=document.querySelectorAll("#timeGroup .time-item");
+    times.forEach(t=>{
+        t.onclick=function(){
+            times.forEach(x=>x.classList.remove("on"));
+            this.classList.add("on");
+            selectTime=this.innerText;
+        };
+    });
+}
+function bindFilter(){
+    document.querySelectorAll(".cate-item").forEach(el=>{
+        el.onclick=function(){
+            document.querySelectorAll(".cate-item").forEach(e=>e.classList.remove("active"));
+            this.classList.add("active");
+            activeCate=this.dataset.cate;
+            filterData();
+        };
+    });
+    document.querySelectorAll(".dis-item").forEach(el=>{
+        el.onclick=function(){
+            document.querySelectorAll(".dis-item").forEach(e=>e.classList.remove("active"));
+            this.classList.add("active");
+            activeDis=Number(this.dataset.dis);
+            filterData();
+        };
+    });
+    document.getElementById("searchVal").addEventListener("input",filterData);
+}
+function filterData(){
+    let key=document.getElementById("searchVal").value.toLowerCase().trim();
+    let res=shopData.filter(item=>{
+        let cOk=activeCate==="all"||item.cate===activeCate;
+        let dOk=activeDis===0||item.dis<=activeDis;
+        let sOk=!key||item.name.toLowerCase().includes(key)||item.desc.toLowerCase().includes(key);
+        return cOk&&dOk&&sOk;
+    });
+    renderList(res);
+}
+</script>
+</body>
+</html>

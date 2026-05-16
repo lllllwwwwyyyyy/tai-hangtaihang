@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>井陉古道游客中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: #f8f5eb; /* 米黄色背景，温润复古 */
+            padding-bottom: 40px;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: #ffffffdd;
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #eee6d8;
+        }
+
+        .navbar-left, .navbar-right {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4a2e1f;
+            letter-spacing: 1px;
+        }
+
+        /* 顶部景区图片 - 符合井陉古道风貌 */
+        .banner {
+            width: 100%;
+            height: 220px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500"><rect width="1200" height="500" fill="%23997b59"/><path d="M0,300 L200,220 L400,280 L600,180 L800,260 L1000,200 L1200,250 L1200,500 L0,500 Z" fill="%236b4c2c" opacity="0.5"/><circle cx="300" cy="150" r="30" fill="%23d9b48b" opacity="0.8"/><circle cx="750" cy="120" r="40" fill="%23c29a6b" opacity="0.7"/><text x="600" y="420" font-size="28" fill="%23fef3e2" text-anchor="middle" font-weight="bold">井陉古道 · 千年秦皇驿道</text></svg>') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        .banner-tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background-color: rgba(0,0,0,0.55);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 24px;
+            font-size: 13px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* 景区标题 */
+        .scenic-title {
+            padding: 22px 16px 8px 16px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #2c221b;
+            letter-spacing: -0.3px;
+        }
+
+        /* 模块标题 */
+        .section-title {
+            padding: 6px 16px 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #4a2e1f;
+            margin-top: 12px;
+            border-left: 5px solid #b96b39;
+            margin-left: 16px;
+            padding-left: 14px;
+        }
+
+        /* 通用卡片容器 - 网格布局 */
+        .card-container {
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* 功能卡片样式，古朴自然 */
+        .function-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 18px 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+            border: 1px solid #f0e4d4;
+            width: 100%;
+        }
+
+        .function-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+            border-color: #e2cfb5;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .card-content h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #b96b39;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .card-content p {
+            font-size: 12px;
+            color: #8c7a66;
+            line-height: 1.35;
+        }
+
+        /* 超链接包裹层：保持卡片完整点击区域，无默认下划线，继承视觉 */
+        .card-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .card-link .function-card {
+            cursor: pointer;
+        }
+
+        /* 点击提示 */
+        .card-link:active .function-card {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+        <div class="navbar-left">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a2e1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </div>
+        <div class="navbar-title">游客中心</div>
+        <div class="navbar-right">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a2e1f" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                <line x1="12" y1="12" x2="12.01" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- 顶部景区形象图 -->
+    <div class="banner">
+        <div class="banner-tag">🏮 古驿道今貌</div>
+    </div>
+
+    <!-- 景区名称 -->
+    <div class="scenic-title">井陉古道历史文化旅游区</div>
+
+    <!-- ========= 智能展览模块（6项功能均已设置为超链接，等待填入跳转地址） ========= -->
+    <div class="section-title">📿 智能展览</div>
+    <div class="card-container">
+        <!-- 1. 找家人 -->
+        <a href="zhaojiaren.html" class="card-link" id="link-family" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none" stroke="#b96b39" stroke-width="1.8">
+                        <path d="M20 4C12.268 4 6 10.268 6 18s6.268 14 14 14 14-6.268 14-14S27.732 4 20 4zm0 24c-5.514 0-10-4.486-10-10S14.486 8 20 8s10 4.486 10 10-4.486 10-10 10zm-1-14h2v6h-2zm0 8h2v2h-2z" fill="#b96b39" stroke="none"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>找家人</h3>
+                    <p>快速定位同行伙伴</p>
+                </div>
+            </div>
+        </a>
+        <!-- 2. 实时人流 -->
+        <a href="keliuliang.html" class="card-link" id="link-realtime" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none" stroke="#b96b39" stroke-width="1.8">
+                        <path d="M34 8H6c-1.1 0-2 .9-2 2v20c0 1.1.9 2 2 2h28c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 22H6V10h28v20zM10 14h20v2H10zm0 4h16v2H10zm0 4h12v2H10z" fill="#b96b39" stroke="none"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>实时人流</h3>
+                    <p>掌握景区实时客流</p>
+                </div>
+            </div>
+        </a>
+        <!-- 3. 打卡点 -->
+        <a href="daka.html" class="card-link" id="link-checkin" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M20 18c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>打卡点</h3>
+                    <p>古道网红打卡地图</p>
+                </div>
+            </div>
+        </a>
+        <!-- 4. 战事典故讲解 -->
+        <a href="历史故事讲解.html" class="card-link" id="link-history" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M30 6H10c-2.21 0-4 1.79-4 4v20c0 2.21 1.79 4 4 4h20c2.21 0 4-1.79 4-4V10c0-2.21-1.79-4-4-4zm0 24H10V10h20v20zm-4-10h-4v4h-4v-4h-4v-4h4v-4h4v4h4v4z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>战事典故讲解</h3>
+                    <p>古道历史故事讲解</p>
+                </div>
+            </div>
+        </a>
+        <!-- 5. 景点位置 -->
+        <a href="景点位置.html" class="card-link" id="link-location" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M26 10H14c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V12c0-1.1-.9-2-2-2zm0 18H14V12h12v16zm-6-12h-2v6h2v-6zm0 8h-2v2h2v-2z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>景点位置</h3>
+                    <p>古道景点导览地图</p>
+                </div>
+            </div>
+        </a>
+        <!-- 6. 虚拟展示 -->
+        
+    </div>
+
+    <!-- ========= 配套服务模块（3项功能均已设置为超链接，等待填入跳转地址） ========= -->
+    <div class="section-title">🏨 配套服务</div>
+    <div class="card-container">
+        <!-- 7. 交通（接驳车） -->
+        <a href="交通.html" class="card-link" id="link-transport" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M34 14h-4v-4c0-1.1-.9-2-2-2H12c-1.1 0-2 .9-2 2v4H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h28c1.1 0 2-.9 2-2V16c0-1.1-.9-2-2-2zm-18-2h8v2h-8v-2zm16 16H8v-8h24v8z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>交通（接驳车）</h3>
+                    <p>景区接驳车</p>
+                </div>
+            </div>
+        </a>
+        <!-- 8. 住宿 -->
+        <a href="住宿.html" class="card-link" id="link-hotel" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M20 6L6 14v16h28V14L20 6zm0 2.5L30 15v13H10V15l10-6.5z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>住宿</h3>
+                    <p>古道周边住宿推荐</p>
+                </div>
+            </div>
+        </a>
+        <!-- 9. 餐饮 -->
+        <a href="餐饮.html" class="card-link" id="link-food" target="_blank" rel="noopener noreferrer">
+            <div class="function-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <path d="M18 14h4v-4h-4v4zm0 6h4v-4h-4v4zm0 6h4v-4h-4v4zm-6 0h4v-4h-4v4zm0-6h4v-4h-4v4zm0-6h4v-4h-4v4zm12 12h4v-4h-4v4zm0-6h4v-4h-4v4zm0-6h4v-4h-4v4z" fill="#b96b39"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3>餐饮</h3>
+                    <p>古道美食指南</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- 底部占位装饰（保留古朴意境） -->
+    <div style="text-align: center; margin-top: 12px; font-size: 11px; color: #b4a07e; letter-spacing: 1px;">🏮 秦皇古驿道 · 绵蔓烟雨情 🏮</div>
+
+    <script>
+        // 辅助脚本：方便后续快速为指定的文本区域替换超链接地址
+        // 您稍后如果通过“圈文字”发给我具体的文字与目标URL，可使用此映射或直接修改下方id对应的 href
+        // 目前所有链接暂为 "#"，等待您提供对应跳转地址。
+        // 为方便管理，将每个卡片的链接id语义化，便于直接替换。
+        const linkMap = {
+            // 智能展览
+            findFamily: document.getElementById('link-family'),
+            realtime: document.getElementById('link-realtime'),
+            checkin: document.getElementById('link-checkin'),
+            history: document.getElementById('link-history'),
+            location: document.getElementById('link-location'),
+            vr: document.getElementById('link-vr'),
+            // 配套服务
+            transport: document.getElementById('link-transport'),
+            hotel: document.getElementById('link-hotel'),
+            food: document.getElementById('link-food')
+        };
+
+        // 示例：未来您提供圈出文字和地址后，可直接调用类似下面的方法进行动态替换
+        // 比如:  updateLink('找家人', 'https://example.com/findfamily');
+        // 但为了完整性，现在只是预留控制台工具函数
+        window.updateLinkByTitle = function(titleText, newUrl) {
+            const mapping = {
+                '找家人': 'findFamily',
+                '实时人流': 'realtime',
+                '打卡点': 'checkin',
+                '战事典故讲解': 'history',
+                '景点位置': 'location',
+                '虚拟展示': 'vr',
+                '交通（接驳车）': 'transport',
+                '住宿': 'hotel',
+                '餐饮': 'food'
+            };
+            const key = mapping[titleText];
+            if (key && linkMap[key]) {
+                linkMap[key].href = newUrl;
+                console.log(`✅ 已将「${titleText}」链接设置为：${newUrl}`);
+            } else {
+                console.warn(`未找到对应文字「${titleText}」，请检查名称是否完全一致（简体/符号）`);
+            }
+        };
+
+        // 额外兼容: 直接通过文字内容批量更新，方便您圈注后批量替换
+        window.batchUpdateLinks = function(updatesArray) {
+            // updatesArray 格式: [{ text: "找家人", url: "https://xxx" }, ...]
+            updatesArray.forEach(item => {
+                updateLinkByTitle(item.text, item.url);
+            });
+        };
+
+        console.log('✅ 所有卡片文字均已被超链接包裹，当前href="#"。收到您圈定的文字和跳转地址后，可调用 window.updateLinkByTitle("找家人","新地址") 轻松替换。');
+    </script>
+</body>
+</html>

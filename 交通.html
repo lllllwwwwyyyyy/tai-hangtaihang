@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>景区交通接驳车</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system;}
+        body{background:#f5f7f5;padding-bottom:30px;}
+
+        /* 1. 顶部导航栏：独立的返回游客中心按钮 */
+        .top-nav{
+            display:flex;
+            align-items:center;
+            background:#fff;
+            padding:14px 16px;
+            box-shadow:0 1px 4px #00000010;
+            position:sticky;
+            top:0;
+            z-index:99;
+        }
+        .back-btn{
+            font-size:18px;
+            color:#333;
+            cursor:pointer;
+            margin-right:12px;
+        }
+        .nav-title{
+            font-size:17px;
+            font-weight:600;
+            flex:1;
+            text-align:center;
+        }
+        .placeholder{width:30px;}
+
+        /* 2. 起止点输入区：默认不填游客中心 */
+        .input-bar{background:#fff;margin:12px;border-radius:12px;padding:16px;}
+        .input-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+        .input-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+        .start-dot{background:#34C759;}
+        .end-dot{background:#FF3B30;}
+        .input-box{flex:1;padding:11px;border:1px solid #eee;border-radius:10px;font-size:15px;outline:none;}
+        .swap-btn{padding:7px 10px;background:#f2f2f7;border-radius:8px;border:none;cursor:pointer;font-size:16px;}
+
+        /* 快捷站点 */
+        .quick-stations{display:flex;gap:8px;overflow-x:auto;padding:8px 0;scrollbar:none;}
+        .quick-tag{padding:7px 14px;background:#eef6ee;border-radius:18px;font-size:13px;white-space:nowrap;color:#2e9b57;cursor:pointer;}
+
+        /* 地图占位 */
+        .map-box{margin:0 12px;height:180px;background:#e6f0e6;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;}
+
+        /* 3. 推荐路线：按钮可点击 */
+        .route-wrap{padding:16px 12px 0;}
+        .route-tit{font-size:16px;font-weight:600;margin-bottom:12px;}
+        .route-card{background:#fff;border-radius:12px;padding:15px;margin-bottom:12px;}
+        .route-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .rank-icon{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:13px;margin-right:6px;}
+        .r1{background:#ffc107;color:#333;}
+        .r2{background:#c8c9cc;color:#333;}
+        .r3{background:#b88c61;}
+        .score-text{color:#ff9500;font-size:14px;}
+        .route-data{display:flex;gap:15px;font-size:13px;color:#666;margin:8px 0;}
+        .route-desc{font-size:13px;color:#444;line-height:1.6;background:#f8faf8;padding:10px;border-radius:8px;}
+        .choose-btn{width:100%;margin-top:12px;padding:11px;border:none;border-radius:10px;color:#fff;font-size:14px;cursor:pointer;}
+        .btn1{background:#34C759;}
+        .btn2{background:#007aff;}
+        .btn3{background:#5ac8fa;}
+    </style>
+</head>
+<body>
+    <!-- 顶部导航：【← 返回】按钮单独存在，点击直接回游客中心 -->
+    <div class="top-nav">
+        <span class="back-btn" onclick="backToGuest()">←</span>
+        <div class="nav-title">景区交通接驳车</div>
+        <div class="placeholder"></div>
+    </div>
+
+    <!-- 起止地点输入：默认不填游客中心，可自由输入 -->
+    <div class="input-bar">
+        <div class="input-row">
+            <div class="input-dot start-dot"></div>
+            <input class="input-box" id="startPlace" placeholder="请输入起始位置（如：苍岩山镇游客中心）">
+        </div>
+        <div class="input-row">
+            <div class="input-dot end-dot"></div>
+            <input class="input-box" id="endPlace" placeholder="请输入目的终点">
+            <button class="swap-btn">⇅</button>
+        </div>
+        <div class="quick-stations">
+            <span class="quick-tag">固关镇</span>
+            <span class="quick-tag">娘子关</span>
+            <span class="quick-tag">威州镇</span>
+            <span class="quick-tag">土门关</span>
+            <span class="quick-tag">微水镇</span>
+            <span class="quick-tag">长生口</span>
+        </div>
+    </div>
+
+    <!-- 路线地图 -->
+    <div class="map-box">景区整体接驳线路地图（可后续添加真实地图）</div>
+
+    <!-- TOP123推荐路线：按钮现在可点击，会提示选择成功 -->
+    <div class="route-wrap">
+        <div class="route-tit">智能推荐出行路线 · 按体验评分排序</div>
+
+        <!-- TOP1 -->
+        <div class="route-card">
+            <div class="route-head">
+                <div>
+                    <span class="rank-icon r1">1</span>
+                    <span>直达专线（无换乘）</span>
+                </div>
+                <span class="score-text">★ 4.9分</span>
+            </div>
+            <div class="route-data">
+                <span>⏱ 35分钟</span>
+                <span>🚶 步行50米</span>
+                <span>🚌 1趟直达车</span>
+            </div>
+            <div class="route-desc">
+                【线路】苍岩山镇游客中心 → 核桃园村 → 固关镇（直达专线）<br>
+                【车辆状态】当前车辆已过核桃园村，预计8分钟到游客中心
+            </div>
+            <button class="choose-btn btn1" onclick="selectRoute(1)">选择此路线，开启到站提醒</button>
+        </div>
+
+        <!-- TOP2 -->
+        <div class="route-card">
+            <div class="route-head">
+                <div>
+                    <span class="rank-icon r2">2</span>
+                    <span>换乘少·风景好路线</span>
+                </div>
+                <span class="score-text">★ 4.7分</span>
+            </div>
+            <div class="route-data">
+                <span>⏱ 42分钟</span>
+                <span>🚶 步行120米</span>
+                <span>🚌 1次换乘</span>
+            </div>
+            <div class="route-desc">
+                【线路1】苍岩山镇游客中心 → 小龙窝村（5站）<br>
+                【换乘】步行80米至长生口站 → 换乘固关镇方向线路（3站）<br>
+                【优势】途经古驿站遗址，可打卡拍照
+            </div>
+            <button class="choose-btn btn2" onclick="selectRoute(2)">选择此路线</button>
+        </div>
+
+        <!-- TOP3 -->
+        <div class="route-card">
+            <div class="route-head">
+                <div>
+                    <span class="rank-icon r3">3</span>
+                    <span>发车密·不等待路线</span>
+                </div>
+                <span class="score-text">★ 4.5分</span>
+            </div>
+            <div class="route-data">
+                <span>⏱ 45分钟</span>
+                <span>🚶 步行200米</span>
+                <span>🚌 1次换乘</span>
+            </div>
+            <div class="route-desc">
+                【线路1】苍岩山镇游客中心 → 微水镇（7站，每10分钟一班）<br>
+                【换乘】步行120米至秀林镇站 → 换乘固关镇方向线路（4站）<br>
+                【优势】发车间隔短，错过无需久等
+            </div>
+            <button class="choose-btn btn3" onclick="selectRoute(3)">选择此路线</button>
+        </div>
+    </div>
+
+<script>
+// 1. 核心：返回游客中心
+function backToGuest(){
+    window.location.href = "智能导览.html";
+}
+
+// 2. 互换起点终点
+document.querySelector('.swap-btn').onclick = function(){
+    let start = document.getElementById('startPlace').value;
+    let end = document.getElementById('endPlace').value;
+    document.getElementById('startPlace').value = end;
+    document.getElementById('endPlace').value = start;
+}
+
+// 3. 快捷站点点击填入终点
+document.querySelectorAll('.quick-tag').forEach(tag => {
+    tag.addEventListener('click', function(){
+        document.getElementById('endPlace').value = this.innerText;
+    });
+});
+
+// 4. 选择路线按钮：现在会有反馈，后续可以加跳转逻辑
+function selectRoute(num){
+    alert(`已选择TOP${num}路线！到站提醒已开启，如需修改请返回重新选择`);
+}
+
+// 5. 手机物理返回键，也直接回游客中心
+window.addEventListener("popstate", function(){
+    backToGuest();
+});
+</script>
+</body>
+</html>

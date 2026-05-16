@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智旅-太行古道</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        /* 全屏背景图 */
+        .bg-container {
+            width: 100%;
+            height: 100%;
+            background: url("img/index.png") no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* 标题容器 - 右对齐 */
+        .hero-title {
+            position: absolute;
+            top: 2%;
+            right: 20px;        /* 改为右对齐，距离右侧20px */
+            left: auto;         /* 取消左对齐 */
+            text-align: right;  /* 文字右对齐 */
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        .hero-title h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            letter-spacing: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 副标题也右对齐 */
+        .hero-sub {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 2px;
+            margin-top: 12px;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 右侧竖排文案 - 保持原样 */
+        .right-text {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 4px;
+        }
+
+        /* 中间竖排文案 - 保持原样 */
+        .center-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 22px;
+            color: #fff;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            letter-spacing: 6px;
+        }
+
+        /* 按钮容器 - 再下移5cm (bottom从3%调整为-2%) */
+        .btn-group {
+            position: absolute;
+            bottom: -2%;      /* 再下移5cm，总计下移约15cm */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            z-index: 20;
+        }
+
+        /* 通用按钮样式 - 文字白色居中 */
+        .guide-btn {
+            width: 160px;
+            height: 60px;
+            border: none;
+            border-radius: 40px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            color: #ffffff !important;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* 商家按钮 */
+        .btn-merchant {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-merchant:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #9B5523 0%, #B06232 100%);
+        }
+
+        /* 游客按钮 */
+        .btn-tourist {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-tourist:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #9B5523 0%, #B06232 100%);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .hero-title {
+                top: 1%;
+                right: 10px;    /* 移动端距离右侧10px */
+            }
+            .hero-title h1 {
+                font-size: 24px;
+                padding: 8px 16px;
+                letter-spacing: 2px;
+            }
+            .hero-sub {
+                font-size: 11px;
+                margin-top: 6px;
+            }
+            .center-text {
+                font-size: 18px;
+                letter-spacing: 4px;
+            }
+            .right-text {
+                font-size: 14px;
+                right: 10px;
+            }
+            .guide-btn {
+                width: 120px;
+                height: 50px;
+                font-size: 16px;
+            }
+            .btn-group {
+                gap: 25px;
+                bottom: -4%;    /* 移动端同样下移 */
+            }
+        }
+
+        /* 小屏适配确保下移效果 */
+        @media (max-height: 700px) {
+            .btn-group {
+                bottom: -6%;
+            }
+            .hero-title {
+                top: 0%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-container">
+        <!-- 标题右对齐 -->
+        <div class="hero-title">
+            <h1>AI智旅 · 太行古道</h1>
+            <div class="hero-sub">智游太行 · 穿越千年</div>
+        </div>
+
+        <!-- 跳转按钮组 - 再下移5cm -->
+        <div class="btn-group">
+            <a href="shuangjia.html" class="guide-btn btn-merchant" target="_blank">商家</a>
+            <a href="智能导览.html" class="guide-btn btn-tourist" target="_blank">游客</a>
+        </div>
+    </div>
+</body>
+</html>
