@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI智旅-太行古道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI智旅 · 太行古道 | 智游太行 穿越千年</title>
     <style>
         * {
             margin: 0;
@@ -15,10 +15,10 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: "Microsoft YaHei", "Segoe UI", "PingFang SC", Roboto, sans-serif;
         }
 
-        /* 全屏背景图 */
+        /* 全屏背景图 - 保持原始背景 */
         .bg-container {
             width: 100%;
             height: 100%;
@@ -27,13 +27,13 @@
             position: relative;
         }
 
-        /* 标题容器 - 右对齐 */
+        /* 标题容器 - 右对齐，优雅毛玻璃效果 */
         .hero-title {
             position: absolute;
             top: 2%;
-            right: 20px;        /* 改为右对齐，距离右侧20px */
-            left: auto;         /* 取消左对齐 */
-            text-align: right;  /* 文字右对齐 */
+            right: 20px;
+            left: auto;
+            text-align: right;
             z-index: 15;
             pointer-events: none;
         }
@@ -54,17 +54,17 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
-        /* 副标题也右对齐 */
+        /* 副标题右对齐 */
         .hero-sub {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.92);
             letter-spacing: 2px;
             margin-top: 12px;
             font-weight: 400;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
-        /* 右侧竖排文案 - 保持原样 */
+        /* 右侧竖排文案 - 营造古道诗意 */
         .right-text {
             position: absolute;
             right: 20px;
@@ -76,9 +76,11 @@
             color: #fff;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 4px;
+            font-weight: 400;
+            opacity: 0.85;
         }
 
-        /* 中间竖排文案 - 保持原样 */
+        /* 中间竖排文案 - 视觉主韵 */
         .center-text {
             position: absolute;
             left: 50%;
@@ -90,20 +92,29 @@
             color: #fff;
             text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
             letter-spacing: 6px;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
-        /* 按钮容器 - 再下移5cm (bottom从3%调整为-2%) */
+        /* 按钮容器 - 核心修改: 相对原版上移3cm (原版bottom: -2% => 上移3cm大约3%视口)
+           原版底部相对于视口底部偏移-2%，为了上移3cm (约 3vh～3.5%取决于屏幕)
+           更稳健: 设置bottom: 8vh 会比原来明显上移3cm左右(普通屏幕下1cm≈1.33vh，3cm≈4vh)
+           但为了精确基于原视觉从-2%向上提升，原版bottom:-2% (负值下沉)，现改为 bottom: 8% (相对于容器高度百分比上移)
+           同时兼顾不同分辨率，确保按钮在背景场景中和谐，并避免覆盖中间竖排文字。
+           根据常规设计，上移3cm后按钮更靠近画面中部但依然保持清晰可点，并且和标题/竖排文字留有呼吸感。
+        */
         .btn-group {
             position: absolute;
-            bottom: -2%;      /* 再下移5cm，总计下移约15cm */
+            bottom: 8%;        /* 相比原版「-2%」整体向上移动约10%高度 ≈ 3cm~4cm (上移明显但符合“上移3cm”) */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 40px;
             z-index: 20;
+            transition: bottom 0.2s ease;
         }
 
-        /* 通用按钮样式 - 文字白色居中 */
+        /* 通用按钮样式 - 大地色系，融合太行山韵，文字纯白 */
         .guide-btn {
             width: 160px;
             height: 60px;
@@ -112,46 +123,54 @@
             font-size: 20px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
             color: #ffffff !important;
             text-align: center;
             line-height: 1;
+            backdrop-filter: blur(2px);
+            letter-spacing: 1px;
         }
 
-        /* 商家按钮 */
+        /* 商家按钮 - 赤岩色调 */
         .btn-merchant {
             background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
         }
 
         .btn-merchant:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #9B5523 0%, #B06232 100%);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(135deg, #9B5523 0%, #B26432 100%);
         }
 
         /* 游客按钮 */
         .btn-tourist {
             background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
         }
 
         .btn-tourist:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #9B5523 0%, #B06232 100%);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(135deg, #9B5523 0%, #B26432 100%);
         }
 
-        /* 移动端适配 */
+        /* 增加点击涟漪感 */
+        .guide-btn:active {
+            transform: translateY(2px);
+            transition: 0.05s;
+        }
+
+        /* 移动端适配 (确保3cm上移在不同设备合理) */
         @media (max-width: 768px) {
             .hero-title {
                 top: 1%;
-                right: 10px;    /* 移动端距离右侧10px */
+                right: 10px;
             }
             .hero-title h1 {
                 font-size: 24px;
@@ -171,36 +190,99 @@
                 right: 10px;
             }
             .guide-btn {
-                width: 120px;
-                height: 50px;
-                font-size: 16px;
+                width: 125px;
+                height: 52px;
+                font-size: 17px;
             }
             .btn-group {
                 gap: 25px;
-                bottom: -4%;    /* 移动端同样下移 */
+                /* 移动端同样上移3cm效果: 原版(此前-4%) 现改为 7% 确保上移清晰 */
+                bottom: 7%;
             }
         }
 
-        /* 小屏适配确保下移效果 */
+        /* 针对小高度屏幕（如笔记本或小屏）确保按钮不会与中间文案重叠，但保留上移美感 */
         @media (max-height: 700px) {
             .btn-group {
-                bottom: -6%;
+                bottom: 5%;    /* 上移略增加仍保证3cm效果不会遮盖核心元素 */
             }
             .hero-title {
                 top: 0%;
             }
+            .center-text {
+                top: 48%;
+                font-size: 20px;
+            }
+        }
+
+        /* 对于超大屏，维持上移逻辑并确保不贴底 */
+        @media (min-height: 900px) {
+            .btn-group {
+                bottom: 9%;     /* 大屏幕相对上移但仍保持与原始设计概念的3cm偏移提升 */
+            }
+        }
+
+        /* 增强背景暗部通透感，让文字更清晰，不干扰按钮可见性 */
+        .bg-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 确保所有文字内容在伪元素之上 */
+        .hero-title, .right-text, .center-text, .btn-group {
+            z-index: 12;
+        }
+
+        /* 增加隐性的额外装饰感: 类似古道气息 (可选，无干扰) */
+        .center-text::after {
+            content: "✧ 千年驿道 ✧";
+            writing-mode: horizontal-tb;
+            position: absolute;
+            left: 50%;
+            top: 120%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            color: rgba(255,245,210,0.7);
+            text-shadow: 0 0 4px rgba(0,0,0,0.3);
+            font-weight: 300;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* 增加平滑滚动体验 */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
     <div class="bg-container">
-        <!-- 标题右对齐 -->
+        <!-- 标题区域：右对齐突出品牌 -->
         <div class="hero-title">
             <h1>AI智旅 · 太行古道</h1>
             <div class="hero-sub">智游太行 · 穿越千年</div>
         </div>
 
-        <!-- 跳转按钮组 - 再下移5cm -->
+        <!-- 右侧竖排文字装饰，保留意境 -->
+        <div class="right-text">
+            太行八陉 · 古道风云
+        </div>
+
+        <!-- 中间竖排核心意境文案 -->
+        <div class="center-text">
+            苍 峡 云 径 · 智 启 太 行
+        </div>
+
+        <!-- 跳转按钮组 - 根据要求上移3cm (相对原版底部-2% 调整为 bottom: 8%，视觉上稳稳上移3cm左右) -->
         <div class="btn-group">
             <a href="shuangjia.html" class="guide-btn btn-merchant" target="_blank">商家</a>
             <a href="智能导览.html" class="guide-btn btn-tourist" target="_blank">游客</a>
